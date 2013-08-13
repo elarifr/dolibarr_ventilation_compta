@@ -1,0 +1,53 @@
+# Dolibarr language file - fr_FR - ventilation
+CHARSET=UTF-8
+
+Module61000Name= Ventilation
+Module61000Desc= Gestion des ventilations Comptable
+
+Ventilation=Ventilation
+
+CustomersVentilation=Ventilation clients
+SuppliersVentilation=Ventilation fournisseurs
+TradeMargin=Marge commerciale
+ByCustomerInvoice=Par factures clients
+ByMonth=Par mois
+Account=Compte comptable
+NewAccount=Nouveau Compte comptable
+update=Mettre a jour
+list=liste
+create=creer
+UpdateAccount=Modification d'un compte
+writeBookKeeping=Ecrire les écritures comptables
+GeneralLedger=Grand Livre
+ToDispatch=A ventiler
+Dispatched=Ventilé
+delBookKeeping=effacer les écritures
+
+VentilationComptable=Ventilation Comptable
+VentilationComptableSupplier=Ventilation Comptable Fournisseur
+Intitule=Intitule
+
+CAHT=Total Chiffre Affaire HT
+CAHTF=Total Achat Fournisseur HT
+InvoiceLines=Lignes de facture à ventiler
+InvoiceLinesDone=Lignes de facture ventilées
+DansCompte=Dans le compte
+
+Ventilate=Ventiler
+
+VENTILATION_SELL_JOURNAL=Journal des Ventes
+VENTILATION_PURCHASE_JOURNAL=Journal des Achats
+VENTILATION_BANK_JOURNAL=Journal de Banque
+VENTILATION_SOCIAL_JOURNAL=Journal Social
+VENTILATION_ACCOUNT_SUSPENSE=Compte d'attente
+
+doctype=Type de document
+docdate=Date
+docref=Référence
+numerocompte=Compte
+code_tiers=Tiers
+labelcompte=Libellé compte
+debit=Débit
+credit=Crédit
+montant=Montant
+sens=Sens
