@@ -3,6 +3,7 @@
  * Copyright (C) 2004-2005 Laurent Destailleur  <eldy@users.sourceforge.net>
  * Copyright (C) 2013-2014 Florian Henry	      <florian.henry@open-concept.pro>
  * Copyright (C) 2013-2014 Alexandre Spangaro   <alexandre.spangaro@gmail.com>
+ * Copyright (C) 2014      Ari Elbaz (elarifr)  <github@accedinfo.com> 
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -224,14 +225,14 @@ print "<br>\n";
  */
 $list=array('ACCOUNTINGEX_LENGTH_GACCOUNT',
             'ACCOUNTINGEX_LENGTH_AACCOUNT',
-            'COMPTA_ACCOUNT_CUSTOMER',            
             'COMPTA_ACCOUNT_SUPPLIER',
-            'COMPTA_PRODUCT_BUY_ACCOUNT',
-            'COMPTA_PRODUCT_SOLD_ACCOUNT',
-            'COMPTA_SERVICE_BUY_ACCOUNT',
-            'COMPTA_SERVICE_SOLD_ACCOUNT',
+            'COMPTA_ACCOUNT_CUSTOMER',
             'ACCOUNTINGEX_ACCOUNT_SUSPENSE',
             'ACCOUNTINGEX_ACCOUNT_TRANSFER_CASH',
+            'COMPTA_SERVICE_BUY_ACCOUNT',
+            'COMPTA_PRODUCT_BUY_ACCOUNT',
+            'COMPTA_SERVICE_SOLD_ACCOUNT',
+            'COMPTA_PRODUCT_SOLD_ACCOUNT',
             'ACCOUNTINGEX_SELL_JOURNAL',
             'ACCOUNTINGEX_PURCHASE_JOURNAL',
             'ACCOUNTINGEX_BANK_JOURNAL',
