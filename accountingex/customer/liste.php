@@ -140,7 +140,8 @@ $sql.= " LEFT JOIN ".MAIN_DB_PREFIX."product as p ON p.rowid = l.fk_product";
 $sql.= " WHERE f.rowid = l.fk_facture AND f.fk_statut > 0 AND fk_code_ventilation = 0";
 //$sql.= " ORDER BY l.rowid DESC ".$db->plimit($limit+1,$offset);
 //$sql.= " ORDER BY l.fk_facture DESC, l.rowid DESC ".$db->plimit($limit+1,$offset);
-$sql.= " ORDER BY l.fk_facture, l.rowid ".$db->plimit($limit+1,$offset);
+//$sql.= " ORDER BY l.fk_facture, l.rowid ".$db->plimit($limit+1,$offset);
+$sql.= " ORDER BY f.rowid, l.rowid ".$db->plimit($limit+1,$offset);
 
 $result = $db->query($sql);
 if ($result)
