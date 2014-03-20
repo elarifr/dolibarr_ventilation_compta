@@ -3,6 +3,7 @@
  * Copyright (C) 2004-2005 Laurent Destailleur  <eldy@users.sourceforge.net>
  * Copyright (C) 2013-2014 Florian Henry	      <florian.henry@open-concept.pro>
  * Copyright (C) 2013-2014 Alexandre Spangaro   <alexandre.spangaro@gmail.com>
+ * Copyright (C) 2014      Ari Elbaz (elarifr)  <github@accedinfo.com> 
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -159,7 +160,7 @@ print "<br>\n";
  *  Params
  *
  */
-$list=array('ACCOUNTINGEX_SEPARATORCSV');
+$list=array('ACCOUNTINGEX_SEPARATORCSV','ACCOUNTINGEX_EXPORTZERO');
 
 $num=count($list);
 if ($num)
@@ -174,7 +175,7 @@ foreach ($list as $key)
 {
 	$var=!$var;
 
-	print '<form action="index.php" method="POST">';
+	print '<form action="export.php" method="POST">';
 	print '<input type="hidden" name="token" value="'.$_SESSION['newtoken'].'">';
 	
 	print '<input type="hidden" name="action" value="update">';
