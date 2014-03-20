@@ -7,6 +7,7 @@
  * Copyright (C) 2013-2014 Alexandre Spangaro	  <alexandre.spangaro@gmail.com>
  * Copyright (C) 2013      Florian Henry	      <florian.henry@open-concept.pro>
  * Copyright (C) 2013-2014 Olivier Geffroy      <jeff@jeffinfo.com>
+ * Copyright (C) 2014      Ari Elbaz (elarifr)  <github@accedinfo.com>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -101,6 +102,8 @@ $idpays = $p[0];
 
 $sql = "SELECT f.rowid, f.facnumber, f.type, f.datef as df, f.ref_client,";
 $sql.= " fd.rowid as fdid, fd.product_type, fd.total_ht, fd.total_tva, fd.tva_tx, fd.total_ttc,";
+//elari we need fd.description to export in accounting
+//$sql.= " fd.rowid as fdid, fd.product_type, fd.description as pdesc, fd.total_ht, fd.total_tva, fd.tva_tx, fd.total_ttc,";
 $sql.= " s.rowid as socid, s.nom as name, s.code_compta, s.code_client,";
 $sql.= " p.rowid as pid, p.ref as pref, p.accountancy_code_sell, aa.rowid as fk_compte, aa.account_number as compte, aa.label as label_compte, ";
 $sql.= " ct.accountancy_code_sell as account_tva";
@@ -123,6 +126,9 @@ $result = $db->query($sql);
 if ($result)
 {
 	$tabfac = array();
+	//elarifr test
+	$tabdet2 = array();
+	//elarifr test
 	$tabht = array();
 	$tabtva = array();
 	$tabttc = array();
@@ -134,6 +140,7 @@ if ($result)
    	while ($i < $num)
    	{
    	    $obj = $db->fetch_object($result);
+   	    //print_r($obj);
    	    // les variables
    	    $cptcli = (! empty($conf->global->COMPTA_ACCOUNT_CUSTOMER))?$conf->global->COMPTA_ACCOUNT_CUSTOMER:$langs->trans("CodeNotDef");
    	    $compta_soc = (! empty($obj->code_compta))?$obj->code_compta:$cptcli;
@@ -161,6 +168,20 @@ if ($result)
    		$tabtva[$obj->rowid][$compta_tva] += $obj->total_tva;
    		$tabcompany[$obj->rowid]=array('id'=>$obj->socid, 'name'=>$obj->name, 'code_client'=>$obj->code_compta);
 
+	//elarifr test
+   		$tabdet2[$i]=array(
+   		'fdet_rowid'=>$obj->rowid,
+   		'fdet_facnumber'=>$obj->facnumber,
+                'fdet_compte'=>$obj->compte,
+                'fdet_total_ht'=>$obj->total_ht,
+                'fdet_product_type'=>$obj->product_type,
+                'fdet_ref'=>$obj->pref,
+                'fdet_desc'=>dol_trunc($obj->pdesc,40)
+   		);
+
+//print_r($tabht[9]).'****************';
+
+	//elarifr test
    		$i++;
    	}
 }
@@ -317,6 +338,9 @@ if (GETPOST('action') == 'export_csv')
     {
       foreach ($tabfac as $key => $val)
     	{
+//elarifr
+print_r($tabdet2);
+//elarifr
         $companystatic->id=$tabcompany[$key]['id'];
 	    	$companystatic->name=$tabcompany[$key]['name'];
 	    	$companystatic->client=$tabcompany[$key]['code_client'];
@@ -413,12 +437,24 @@ report_header($nom,$nomlink,$period,$periodlink,$description,$builddate,$exportl
 	$invoicestatic=new Facture($db);
 	$companystatic=new Client($db);
 
+//elarifr
+// print_r($tabht);
+print_r($tabdet2);
+//elarifr
+
 	foreach ($tabfac as $key => $val)
 	{
 		$invoicestatic->id=$key;
 		$invoicestatic->ref=$val["ref"];
 		$invoicestatic->type=$val["type"];
+//elarifr
+		//get description
+                //$invoicestatic->ptype=$val["ptype"];
+                //$invoicestatic->pdesc=$val["pdesc"];
+                //$invoicestatic->pref=$val["pref"];
 
+               	//print_r($invoicestatic);
+//elarifr
 	    $date = dol_print_date($db->jdate($val["date"]),'day');
 
 		print "<tr ".$bc[$var].">";
@@ -438,7 +474,37 @@ report_header($nom,$nomlink,$period,$periodlink,$description,$builddate,$exportl
 		}
 		print "</tr>";
 		// product
+		
+		if ($conf->global->ACCOUNTINGEX_DETAIL_SELL ==0 )
+		{
+		$tabdet2_filter = array_filter($tabdet2 , function ($element) use ($key)      { if ($element[fdet_rowid] == $key) return $element; });
+
+                //print_r($tabdet2_filter);
+                foreach ($tabdet2_filter as $k2=>$val2 )
+		{
+                  //foreach ($detail as $k2=>$val2)
+                  print 'tabfac key='.$key . '-tabdet2 k='.$val2[fdet_rowid].$val2[fdet_facnumber].$val2[fdet_product_type].$val2[fdet_ref].$val2[fdet_desc].$val2[fdet_total_ht].'<br />';
+
+			if ($conf->global->ACCOUNTINGEX_EXPORTZERO==0 || $val2[fdet_total_ht] != 0)
+			{
+				print "<tr ".$bc[$var].">";
+				//print "<td>".$conf->global->COMPTA_JOURNAL_SELL."</td>";
+				print "<td>".$date."</td>";
+				print "<td>".$invoicestatic->getNomUrl(1)."</td>";
+//elarifr
+//				print "<td>".length_accountg($k)."</td><td>".$langs->trans("Products")."</td><td align='right'>".($mt<0?price(-$mt):'')."</td><td align='right'>".($mt>=0?price($mt):'')."</td></tr>";
+				$mt=  $val2[fdet_total_ht];
+                                if ($val2[fdet_product_type]==0){$sell_detail= $langs->trans("Products");} else {$sell_detail= $langs->trans("Services");}
+				$sell_detail .= " (".$val2[fdet_product_type].") (".$val2[fdet_ref].") - ".$val2[fdet_desc];
+				print "<td>".length_accountg($val2[fdet_compte])."</td><td>".$sell_detail."</td><td align='right'>".($mt<0?price(-$mt):'')."</td><td align='right'>".($mt>=0?price($mt):'')."</td></tr>";
+//elarifr
+			}
+                }
+                }
+                else
+                {
 		foreach ($tabht[$key] as $k => $mt)
+		print 'tabfac key='.$key . '-tabht k='.$k.'<br />';
 		{
 			if ($mt)
 			{
@@ -446,9 +512,15 @@ report_header($nom,$nomlink,$period,$periodlink,$description,$builddate,$exportl
 				//print "<td>".$conf->global->COMPTA_JOURNAL_SELL."</td>";
 				print "<td>".$date."</td>";
 				print "<td>".$invoicestatic->getNomUrl(1)."</td>";
-				print "<td>".length_accountg($k)."</td><td>".$langs->trans("Products")."</td><td align='right'>".($mt<0?price(-$mt):'')."</td><td align='right'>".($mt>=0?price($mt):'')."</td></tr>";
+//elarifr
+//				print "<td>".length_accountg($k)."</td><td>".$langs->trans("Products")."</td><td align='right'>".($mt<0?price(-$mt):'')."</td><td align='right'>".($mt>=0?price($mt):'')."</td></tr>";
+				if ($invoicestatic->ptype==1){$sell_detail= $langs->trans("Products");} else {$sell_detail= $langs->trans("Services");}
+				$sell_detail .= " (".$invoicestatic->ptype.") (".$invoicestatic->pref.") - ".$invoicestatic->pdesc;
+				print "<td>".length_accountg($k)."</td><td>".$sell_detail."</td><td align='right'>".($mt<0?price(-$mt):'')."</td><td align='right'>".($mt>=0?price($mt):'')."</td></tr>";
+//elarifr
 			}
 		}
+                }
 		// vat
 		//var_dump($tabtva);
 		foreach ($tabtva[$key] as $k => $mt)
