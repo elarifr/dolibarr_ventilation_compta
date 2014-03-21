@@ -129,7 +129,8 @@ if ($resultCompte)
 */
 $page = $_GET["page"];
 if ($page < 0) $page = 0;
-$limit = $conf->liste_limit;
+if (! empty($conf->global->LIMIT_LIST_VENTILATION)) { $limit = $conf->global->LIMIT_LIST_VENTILATION; } else { $limit = $conf->liste_limit;}
+//$limit = $conf->liste_limit;
 $offset = $limit * $page ;
 // modif order by car pbr si modif facture les lignes ne sont plus dans l'ordre rowid
 $sql = "SELECT f.facnumber, f.rowid as facid, l.fk_product, l.description, l.total_ht, l.rowid, l.fk_code_ventilation,";
@@ -141,7 +142,9 @@ $sql.= " WHERE f.rowid = l.fk_facture AND f.fk_statut > 0 AND fk_code_ventilatio
 //$sql.= " ORDER BY l.rowid DESC ".$db->plimit($limit+1,$offset);
 //$sql.= " ORDER BY l.fk_facture DESC, l.rowid DESC ".$db->plimit($limit+1,$offset);
 //$sql.= " ORDER BY l.fk_facture, l.rowid ".$db->plimit($limit+1,$offset);
-$sql.= " ORDER BY f.rowid, l.rowid ".$db->plimit($limit+1,$offset);
+$sql.= " ORDER BY f.rowid, l.rowid";
+if (! empty($conf->global->LIST_SORT_VENTILATION)) { $sql.= " DESC "; }
+$sql.= $db->plimit($limit+1,$offset);
 
 $result = $db->query($sql);
 if ($result)
