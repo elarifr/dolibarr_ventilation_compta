@@ -101,9 +101,9 @@ $p = explode(":", $conf->global->MAIN_INFO_SOCIETE_COUNTRY);
 $idpays = $p[0];
 
 $sql = "SELECT f.rowid, f.facnumber, f.type, f.datef as df, f.ref_client,";
-$sql.= " fd.rowid as fdid, fd.product_type, fd.total_ht, fd.total_tva, fd.tva_tx, fd.total_ttc,";
+//$sql.= " fd.rowid as fdid, fd.product_type, fd.total_ht, fd.total_tva, fd.tva_tx, fd.total_ttc,";
 //elari we need fd.description to export in accounting
-//$sql.= " fd.rowid as fdid, fd.product_type, fd.description as pdesc, fd.total_ht, fd.total_tva, fd.tva_tx, fd.total_ttc,";
+$sql.= " fd.rowid as fdid, fd.product_type, fd.description as pdesc, fd.total_ht, fd.total_tva, fd.tva_tx, fd.total_ttc,";
 $sql.= " s.rowid as socid, s.nom as name, s.code_compta, s.code_client,";
 $sql.= " p.rowid as pid, p.ref as pref, p.accountancy_code_sell, aa.rowid as fk_compte, aa.account_number as compte, aa.label as label_compte, ";
 $sql.= " ct.accountancy_code_sell as account_tva";
@@ -475,7 +475,7 @@ print_r($tabdet2);
 		print "</tr>";
 		// product
 		
-		if ($conf->global->ACCOUNTINGEX_DETAIL_SELL ==0 )
+		if ($conf->global->ACCOUNTINGEX_SELL_DETAILED ==1 )
 		{
 		$tabdet2_filter = array_filter($tabdet2 , function ($element) use ($key)      { if ($element[fdet_rowid] == $key) return $element; });
 
@@ -485,7 +485,7 @@ print_r($tabdet2);
                   //foreach ($detail as $k2=>$val2)
                   print 'tabfac key='.$key . '-tabdet2 k='.$val2[fdet_rowid].$val2[fdet_facnumber].$val2[fdet_product_type].$val2[fdet_ref].$val2[fdet_desc].$val2[fdet_total_ht].'<br />';
 
-			if ($conf->global->ACCOUNTINGEX_EXPORTZERO==0 || $val2[fdet_total_ht] != 0)
+			if ($conf->global->ACCOUNTINGEX_SELL_EXPORTZERO==1 || $val2[fdet_total_ht] != 0)
 			{
 				print "<tr ".$bc[$var].">";
 				//print "<td>".$conf->global->COMPTA_JOURNAL_SELL."</td>";
