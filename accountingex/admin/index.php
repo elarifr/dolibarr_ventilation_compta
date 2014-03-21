@@ -225,7 +225,7 @@ print "<br>\n";
  *  LIMIT value should be placed in export tab
  */
 $list=array('LIMIT_LIST_VENTILATION',
-            'LIST_SORT',
+            'LIST_SORT_VENTILATION',
             'ACCOUNTINGEX_LENGTH_GACCOUNT',
             'ACCOUNTINGEX_LENGTH_AACCOUNT',
             'COMPTA_ACCOUNT_SUPPLIER',
