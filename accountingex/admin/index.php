@@ -221,9 +221,12 @@ print "<br>\n";
 
 /*
  *  Params
- *
+ *  Order provided following PCG99 account order..
+ *  LIMIT value should be placed in export tab
  */
-$list=array('ACCOUNTINGEX_LENGTH_GACCOUNT',
+$list=array('LIMIT_LIST_VENTILATION',
+            'LIST_SORT',
+            'ACCOUNTINGEX_LENGTH_GACCOUNT',
             'ACCOUNTINGEX_LENGTH_AACCOUNT',
             'COMPTA_ACCOUNT_SUPPLIER',
             'COMPTA_ACCOUNT_CUSTOMER',
