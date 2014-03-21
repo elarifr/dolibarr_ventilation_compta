@@ -273,7 +273,7 @@ if (GETPOST('action') == 'export_csv')
     $sep = $conf->global->ACCOUNTINGEX_SEPARATORCSV;
     
     header( 'Content-Type: text/csv' );
-    header( 'Content-Disposition: attachment;filename=journal_ventes.csv');
+    header( 'Content-Disposition: attachment;filename ='.$conf->global->ACCOUNTINGEX_EXPORT_FILENAME);
   	
     $companystatic=new Client($db);
     
@@ -286,7 +286,7 @@ if (GETPOST('action') == 'export_csv')
 	    	$companystatic->client=$tabcompany[$key]['code_client'];
         
         $date = dol_print_date($db->jdate($val["date"]),'%d%m%Y');
-    		
+
         print $date.$sep;
     		print $conf->global->ACCOUNTINGEX_SELL_JOURNAL.$sep;
         print length_accountg($conf->global->COMPTA_ACCOUNT_CUSTOMER).$sep;
@@ -513,14 +513,14 @@ print_r($tabdet2);
 				print "<td>".$date."</td>";
 				print "<td>".$invoicestatic->getNomUrl(1)."</td>";
 //elarifr
-//				print "<td>".length_accountg($k)."</td><td>".$langs->trans("Products")."</td><td align='right'>".($mt<0?price(-$mt):'')."</td><td align='right'>".($mt>=0?price($mt):'')."</td></tr>";
-				if ($invoicestatic->ptype==1){$sell_detail= $langs->trans("Products");} else {$sell_detail= $langs->trans("Services");}
-				$sell_detail .= " (".$invoicestatic->ptype.") (".$invoicestatic->pref.") - ".$invoicestatic->pdesc;
-				print "<td>".length_accountg($k)."</td><td>".$sell_detail."</td><td align='right'>".($mt<0?price(-$mt):'')."</td><td align='right'>".($mt>=0?price($mt):'')."</td></tr>";
+				print "<td>".length_accountg($k)."</td><td>".$langs->trans("Products")."</td><td align='right'>".($mt<0?price(-$mt):'')."</td><td align='right'>".($mt>=0?price($mt):'')."</td></tr>";
+//				if ($invoicestatic->ptype==1){$sell_detail= $langs->trans("Products");} else {$sell_detail= $langs->trans("Services");}
+//				$sell_detail .= " (".$invoicestatic->ptype.") (".$invoicestatic->pref.") - ".$invoicestatic->pdesc;
+//				print "<td>".length_accountg($k)."</td><td>".$sell_detail."</td><td align='right'>".($mt<0?price(-$mt):'')."</td><td align='right'>".($mt>=0?price($mt):'')."</td></tr>";
 //elarifr
 			}
+			}
 		}
-                }
 		// vat
 		//var_dump($tabtva);
 		foreach ($tabtva[$key] as $k => $mt)
