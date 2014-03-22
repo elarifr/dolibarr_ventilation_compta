@@ -68,6 +68,16 @@ VentilatedinAccount=Ventilée avec succès dans le compte comptable
 NotVentilatedinAccount=Non ventilée dans le compte comptable
 
 ACCOUNTINGEX_SEPARATORCSV=Séparateur CSV
+ACCOUNTINGEX_SELL_DETAILED=Détaillé par lignes (0=non 1=oui)
+ACCOUNTINGEX_SELL_EXPORTZERO=Transferer les lignes nulles (0=non 1=oui)
+ACCOUNTINGEX_EXPORT_FOLDER01=Dossier personnel 01
+ACCOUNTINGEX_EXPORT_FOLDER02=Dossier personnel 02
+ACCOUNTINGEX_EXPORT_FILENAME_PREDATING=Fichier Export Prefixe date : yyyymmdd (0=non 1=oui)
+ACCOUNTINGEX_EXPORT_FILENAME=Fichier Export Nom ou Nom.ext (eviter espace, signe, ponctuation)
+ACCOUNTINGEX_EXPORT_FILENAME_JOURNAL=Fichier Export Suffixe Journal (0=non 1=oui)
+ACCOUNTINGEX_EXPORT_FILENAME_POSTDATING=Fichier Export Suffixe date : yyyymmdd  (0=non 1=oui)
+ACCOUNTINGEX_EXPORT_FILENAME_EXTENSION=Fichier Export Extention  (.csv .txt)  Attention avec signe ( . )
+ACCOUNTINGEX_EXPORT_FILENAME_SEPARATOR=Fichier Export Séparateur (- _ .) Attention aux incompatible systeme de fichiers !
 
 LIMIT_LIST_VENTILATION=Nombre d'éléments à ventiler affichés par page
 LIST_SORT_VENTILATION=Sens de tri des pages de ventilation (DESC (par défaut) ou vide)

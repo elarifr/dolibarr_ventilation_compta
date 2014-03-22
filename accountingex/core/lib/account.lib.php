@@ -176,7 +176,7 @@ function length_accountg($account)
         while ($i < $g)
         {
           $account .= '0';
-            
+
           $i++;
         }
         
@@ -205,7 +205,7 @@ function length_accounta($accounta)
 	global $conf,$langs;
   
   $a = $conf->global->ACCOUNTINGEX_LENGTH_AACCOUNT;
-  
+
   if (! empty($a))
   {
     // Clean parameters
@@ -232,6 +232,20 @@ function length_accounta($accounta)
   { 
 	  return $accounta;
   }
+}
+
+function accountingex_export_filename_set($filename,$journal_option)
+{
+  global $conf;
+  $filename ="";
+  if ($conf->global->ACCOUNTINGEX_EXPORT_FILENAME_PREDATING == 1)  {$filename .=strftime("%Y%m%d%H%M").$conf->global->ACCOUNTINGEX_EXPORT_FILENAME_SEPARATOR;}
+  if ($conf->global->ACCOUNTINGEX_EXPORT_FILENAME != "" )          {$filename .=$conf->global->ACCOUNTINGEX_EXPORT_FILENAME;} else {$filename .="export";}
+  if ($conf->global->ACCOUNTINGEX_EXPORT_FILENAME_JOURNAL == 1 )   {$filename .=$conf->global->ACCOUNTINGEX_EXPORT_FILENAME_SEPARATOR.$journal_option;}
+  if ($conf->global->ACCOUNTINGEX_EXPORT_FILENAME_POSTDATING == 1) {$filename .=$conf->global->ACCOUNTINGEX_EXPORT_FILENAME_SEPARATOR.strftime("%Y%m%d%H%M");}
+  if ($conf->global->ACCOUNTINGEX_EXPORT_FILENAME_EXTENSION != "") {$filename .=$conf->global->ACCOUNTINGEX_EXPORT_FILENAME_EXTENSION;} else {$filename .=".csv";}
+
+  return $filename;
+
 }
 
 ?>

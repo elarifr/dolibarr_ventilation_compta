@@ -271,10 +271,12 @@ if (GETPOST('action') == 'writeBookKeeping')
 if (GETPOST('action') == 'export_csv')
 {
     $sep = $conf->global->ACCOUNTINGEX_SEPARATORCSV;
+    $filename=accountingex_export_filename_set($filename="",$conf->global->ACCOUNTINGEX_SELL_JOURNAL);
     
     header( 'Content-Type: text/csv' );
-    header( 'Content-Disposition: attachment;filename ='.$conf->global->ACCOUNTINGEX_EXPORT_FILENAME);
-  	
+//    header( 'Content-Disposition: attachment;filename ='.$conf->global->ACCOUNTINGEX_EXPORT_FILENAME);
+    header( 'Content-Disposition: attachment;filename ='.$filename);
+
     $companystatic=new Client($db);
     
     if ($conf->global->ACCOUNTINGEX_MODELCSV == 1) // Modèle Cegid Expert

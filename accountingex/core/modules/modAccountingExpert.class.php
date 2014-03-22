@@ -88,8 +88,18 @@ class modAccountingExpert extends DolibarrModules
 		$this->const[13] = array("ACCOUNTINGEX_LENGTH_AACCOUNT","chaine","");
     $this->const[14] = array("LIMIT_LIST_VENTILATION","chaine","50");
 		$this->const[15] = array("LIST_SORT_VENTILATION","chaine","DESC");
-		
-    
+
+		$this->const[16] = array("ACCOUNTINGEX_SELL_DETAILED","chaine","1");
+		$this->const[17] = array("ACCOUNTINGEX_SELL_EXPORTZERO","chaine","0");
+		$this->const[18] = array("ACCOUNTINGEX_EXPORT_FOLDER01","chaine","C:\%USERPROFILE%");
+		$this->const[19] = array("ACCOUNTINGEX_EXPORT_FOLDER02","chaine","C:\mycompta");
+		$this->const[20] = array("ACCOUNTINGEX_EXPORT_FILENAME_PREDATING","chaine","0");
+		$this->const[21] = array("ACCOUNTINGEX_EXPORT_FILENAME","chaine","export");
+		$this->const[22] = array("ACCOUNTINGEX_EXPORT_FILENAME_JOURNAL","chaine","1");
+		$this->const[23] = array("ACCOUNTINGEX_EXPORT_FILENAME_POSTDATING","chaine","1");
+		$this->const[24] = array("ACCOUNTINGEX_EXPORT_FILENAME_EXTENSION","chaine",".csv");
+		$this->const[25] = array("ACCOUNTINGEX_EXPORT_FILENAME_SEPARATOR","chaine","_");
+
     // Css
     $this->module_parts = array('css' => array('/accountingex/css/accountingex.css.php'));
     		
