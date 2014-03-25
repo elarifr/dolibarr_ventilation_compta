@@ -127,7 +127,7 @@ if ($result)
 {
 	$tabfac = array();
 	//elarifr test
-	$tabdet2 = array();
+	//$tabdet2 = array();
 	//elarifr test
 	$tabht = array();
 	$tabtva = array();
@@ -341,7 +341,7 @@ if (GETPOST('action') == 'export_csv')
       foreach ($tabfac as $key => $val)
     	{
 //elarifr
-print_r($tabdet2);
+//print_r($tabdet2);
 //elarifr
         $companystatic->id=$tabcompany[$key]['id'];
 	    	$companystatic->name=$tabcompany[$key]['name'];
@@ -441,22 +441,14 @@ report_header($nom,$nomlink,$period,$periodlink,$description,$builddate,$exportl
 
 //elarifr
 // print_r($tabht);
-print_r($tabdet2);
+//print_r($tabdet2);
 //elarifr
-
 	foreach ($tabfac as $key => $val)
 	{
 		$invoicestatic->id=$key;
 		$invoicestatic->ref=$val["ref"];
 		$invoicestatic->type=$val["type"];
-//elarifr
-		//get description
-                //$invoicestatic->ptype=$val["ptype"];
-                //$invoicestatic->pdesc=$val["pdesc"];
-                //$invoicestatic->pref=$val["pref"];
 
-               	//print_r($invoicestatic);
-//elarifr
 	    $date = dol_print_date($db->jdate($val["date"]),'day');
 
 		print "<tr ".$bc[$var].">";

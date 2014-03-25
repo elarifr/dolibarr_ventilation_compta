@@ -273,7 +273,6 @@ else if ($id)
 		{
 			print '<table class="border" width="100%">';
 			
-			//$linkback = '<a href="' . DOL_URL_ROOT . '/compta/deplacement/list.php' . (! empty ( $socid ) ? '?socid=' . $socid : '') . '">' . $langs->trans ( "BackToList" ) . '</a>';
 			print '<tr><td width="25%">' . $langs->trans ( "AccountNumber" ) . '</td>';
 			print '<td>' . $accounting->account_number . '</td></tr>';
 			print '<tr><td>' . $langs->trans ( "Label" ) . '</td>';

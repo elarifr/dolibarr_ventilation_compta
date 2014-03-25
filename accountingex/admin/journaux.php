@@ -3,7 +3,6 @@
  * Copyright (C) 2004-2005 Laurent Destailleur  <eldy@users.sourceforge.net>
  * Copyright (C) 2013-2014 Florian Henry	      <florian.henry@open-concept.pro>
  * Copyright (C) 2013-2014 Alexandre Spangaro   <alexandre.spangaro@gmail.com>
- * Copyright (C) 2014      Ari Elbaz (elarifr)  <github@accedinfo.com>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -21,7 +20,7 @@
  */
 
 /**
-    \file       htdocs/accountingex/admin/export.php
+    \file       htdocs/accountingex/admin/index.php
     \ingroup    Accounting Expert
 		\brief      Page administration du module
 */
@@ -52,24 +51,7 @@ $action=GETPOST('action','alpha');
  * Affichage page
  *
  */
-if ($action == 'setmodelcsv')
-{
-	$modelcsv = GETPOST('modelcsv','int');
-
-	$res = dolibarr_set_const($db, 'ACCOUNTINGEX_MODELCSV', $modelcsv,'chaine',0,'',$conf->entity);
-
-	if (! $res > 0) $error++;
-
- 	if (! $error)
-    {
-        $mesg = "<font class=\"ok\">".$langs->trans("SetupSaved")."</font>";
-    }
-    else
-    {
-        $mesg = "<font class=\"error\">".$langs->trans("Error")."</font>";
-    }
-}
-
+ 
 if ($action == 'delete')
 {
 	if (! dolibarr_del_const($db, $_GET['constname'],$conf->entity));
@@ -98,79 +80,29 @@ if ($action == 'update' || $action == 'add')
         $mesg = "<font class=\"error\">".$langs->trans("Error")."</font>";
     }
 }
-
 /*
  * Affichage page
  */
 
 llxHeader();
 
-$form=new Form($db);
+$form = new Form($db);
 
 print_fiche_titre($langs->trans('ConfigAccountingExpert'));
 
 $head = admin_account_prepare_head(null);
 		
-dol_fiche_head($head,'export',$langs->trans("Configuration"),0,'cron' );
-
-print '<table class="noborder" width="100%">';
-
-/*
- *  Select Export Model CSV
- *  
- */
-print '<form action="'.$_SERVER["PHP_SELF"].'" method="POST">';
-print '<input type="hidden" name="token" value="'.$_SESSION['newtoken'].'" />';
-print '<input type="hidden" name="action" value="setmodelcsv">';
-
-print '<table class="noborder" width="100%">';
-$var=True;
-
-print '<tr class="liste_titre">';
-print '<td>';
-
-print $langs->trans("Modelcsv").'</td>';
-print '<td align="right"><input type="submit" class="button" value="'.$langs->trans("Modify").'"></td>';
-print "</tr>\n";
-$var=!$var;
-print '<tr '.$bc[$var].'>';
-print "<td>".$langs->trans("Selectmodelcsv")."</td>";
-print "<td>";
-print '<select class="flat" name="modelcsv" id="modelcsv">';
-print '<option value="0"';
-      if($conf->global->ACCOUNTINGEX_MODELCSV == 0)
-      {
-        print ' selected="selected"';
-      } 
-print '>'.$langs->trans("Modelcsv_normal").'</option>';
-print '<option value="1"';
-      if($conf->global->ACCOUNTINGEX_MODELCSV == 1)
-      {
-        print ' selected="selected"';
-      } 
-print '>'.$langs->trans("Modelcsv_CEGID").'</option>';
-print "</select>";
-print "</td></tr>";
-print "</table>";
-print "</form>";
-
-print "<br>\n";
+dol_fiche_head($head,'journal',$langs->trans("Configuration"),0,'cron');
 
 /*
  *  Params
  *
  */
-$list=array('ACCOUNTINGEX_SEPARATORCSV',
-'ACCOUNTINGEX_SELL_DETAILED',
-'ACCOUNTINGEX_SELL_EXPORTZERO',
-'ACCOUNTINGEX_EXPORT_FOLDER01',
-'ACCOUNTINGEX_EXPORT_FOLDER02',
-'ACCOUNTINGEX_EXPORT_FILENAME_PREDATING',
-'ACCOUNTINGEX_EXPORT_FILENAME',
-'ACCOUNTINGEX_EXPORT_FILENAME_JOURNAL',
-'ACCOUNTINGEX_EXPORT_FILENAME_POSTDATING',
-'ACCOUNTINGEX_EXPORT_FILENAME_EXTENSION',
-'ACCOUNTINGEX_EXPORT_FILENAME_SEPARATOR'
+$list=array('ACCOUNTINGEX_SELL_JOURNAL',
+            'ACCOUNTINGEX_PURCHASE_JOURNAL',
+            'ACCOUNTINGEX_SOCIAL_JOURNAL',
+            'ACCOUNTINGEX_CASH_JOURNAL',
+            'ACCOUNTINGEX_MISCELLANEOUS_JOURNAL'
 );
 
 $num=count($list);
@@ -178,7 +110,7 @@ if ($num)
 {
 	print '<table class="noborder" width="100%">';
 	print '<tr class="liste_titre">';
-	print '<td colspan="3">'.$langs->trans('OtherOptions').'</td>';
+	print '<td colspan="3">'.$langs->trans('Journaux').'</td>';
 	print "</tr>\n";
 }
 
@@ -186,7 +118,7 @@ foreach ($list as $key)
 {
 	$var=!$var;
 
-	print '<form action="export.php" method="POST">';
+	print '<form action="journaux.php" method="POST">';
 	print '<input type="hidden" name="token" value="'.$_SESSION['newtoken'].'">';
 	
 	print '<input type="hidden" name="action" value="update">';
@@ -196,8 +128,8 @@ foreach ($list as $key)
 	print '<tr '.$bc[$var].' class="value">';
 
 	// Param
-	$libelle = $langs->trans($key); 
-	print '<td>'.$libelle;
+	$label = $langs->trans($key); 
+	print '<td>'.$label;
 	//print ' ('.$key.')';
 	print "</td>\n";
 

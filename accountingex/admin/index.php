@@ -93,6 +93,34 @@ if ($action == 'setchart')
     }
 }
 
+if ($action == 'setlistsorttodo') {
+	$setlistsorttodo = GETPOST('value','int');
+	$res = dolibarr_set_const($db, "ACCOUNTINGEX_LIST_SORT_VENTILATION_TODO", $setlistsorttodo,'yesno',0,'',$conf->entity);
+	if (! $res > 0) $error++;
+	if (! $error)
+	{
+		$mesg = "<font class=\"ok\">".$langs->trans("SetupSaved")."</font>";
+	}
+	else
+	{
+		$mesg = "<font class=\"error\">".$langs->trans("Error")."</font>";
+	}
+}
+
+if ($action == 'setlistsortdone') {
+	$setlistsortdone = GETPOST('value','int');
+	$res = dolibarr_set_const($db, "ACCOUNTINGEX_LIST_SORT_VENTILATION_DONE", $setlistsortdone,'yesno',0,'',$conf->entity);
+	if (! $res > 0) $error++;
+	if (! $error)
+	{
+		$mesg = "<font class=\"ok\">".$langs->trans("SetupSaved")."</font>";
+	}
+	else
+	{
+		$mesg = "<font class=\"error\">".$langs->trans("Error")."</font>";
+	}
+}
+
 if ($action == 'delete')
 {
 	if (! dolibarr_del_const($db, $_GET['constname'],$conf->entity));
@@ -132,8 +160,8 @@ $form=new Form($db);
 print_fiche_titre($langs->trans('ConfigAccountingExpert'));
 
 $head = admin_account_prepare_head ( $accounting );
-		
-dol_fiche_head ( $head, 'card', $langs->trans ( "Configuration" ), 0, 'cron' );
+
+dol_fiche_head($head,'general',$langs->trans("Configuration"),0,'cron');		
 
 print '<table class="noborder" width="100%">';
 
@@ -223,9 +251,9 @@ print "<br>\n";
  *  Params
  *  Order provided following PCG99 account order..
  *  LIMIT value should be placed in export tab
+ *  Moved to journal to tab
  */
-$list=array('LIMIT_LIST_VENTILATION',
-            'LIST_SORT_VENTILATION',
+$list=array('ACCOUNTINGEX_LIMIT_LIST_VENTILATION',
             'ACCOUNTINGEX_LENGTH_GACCOUNT',
             'ACCOUNTINGEX_LENGTH_AACCOUNT',
             'COMPTA_ACCOUNT_SUPPLIER',
@@ -235,24 +263,62 @@ $list=array('LIMIT_LIST_VENTILATION',
             'COMPTA_SERVICE_BUY_ACCOUNT',
             'COMPTA_PRODUCT_BUY_ACCOUNT',
             'COMPTA_SERVICE_SOLD_ACCOUNT',
-            'COMPTA_PRODUCT_SOLD_ACCOUNT',
-            'ACCOUNTINGEX_SELL_JOURNAL',
-            'ACCOUNTINGEX_PURCHASE_JOURNAL',
-            'ACCOUNTINGEX_BANK_JOURNAL',
-            'ACCOUNTINGEX_SOCIAL_JOURNAL',
-            'ACCOUNTINGEX_CASH_JOURNAL',
-            'ACCOUNTINGEX_MISCELLANEOUS_JOURNAL'
+            'COMPTA_PRODUCT_SOLD_ACCOUNT'
 );
 
-$num=count($list);
-if ($num)
-{
+//$num=count($list);
+//if ($num)
+//{
 	print '<table class="noborder" width="100%">';
 	print '<tr class="liste_titre">';
 	print '<td colspan="3">'.$langs->trans('OtherOptions').'</td>';
 	print "</tr>\n";
-}
+//}
 
+print '<form method="POST" action="'.$_SERVER['PHP_SELF'].'">';
+print '<input type="hidden" name="token" value="'.$_SESSION['newtoken'].'">';
+print '<input type="hidden" name="action" value="updateoptionstodo">';
+
+$var=!$var;
+print "<tr ".$bc[$var].">";
+print '<td width="80%">'.$langs->trans("ACCOUNTINGEX_LIST_SORT_VENTILATION_TODO").'</td>';
+if (! empty($conf->global->ACCOUNTINGEX_LIST_SORT_VENTILATION_TODO))
+{
+	print '<td align="center" colspan="2"><a href="'.$_SERVER['PHP_SELF'].'?action=setlistsorttodo&value=0">';
+	print img_picto($langs->trans("Activated"),'switch_on');
+	print '</a></td>';
+}
+else
+{
+	print '<td align="center" colspan="2"><a href="'.$_SERVER['PHP_SELF'].'?action=setlistsorttodo&value=1">';
+	print img_picto($langs->trans("Disabled"),'switch_off');
+	print '</a></td>';
+}
+print '</tr>';
+print '</form>';
+print '<form method="POST" action="'.$_SERVER['PHP_SELF'].'">';
+print '<input type="hidden" name="token" value="'.$_SESSION['newtoken'].'">';
+print '<input type="hidden" name="action" value="updateoptionsdone">';
+
+$var=!$var;
+print "<tr ".$bc[$var].">";
+print '<td width="80%">'.$langs->trans("ACCOUNTINGEX_LIST_SORT_VENTILATION_DONE").'</td>';
+if (! empty($conf->global->ACCOUNTINGEX_LIST_SORT_VENTILATION_DONE))
+{
+	print '<td align="center" colspan="2"><a href="'.$_SERVER['PHP_SELF'].'?action=setlistsortdone&value=0">';
+	print img_picto($langs->trans("Activated"),'switch_on');
+	print '</a></td>';
+}
+else
+{
+	print '<td align="center" colspan="2"><a href="'.$_SERVER['PHP_SELF'].'?action=setlistsortdone&value=1">';
+	print img_picto($langs->trans("Disabled"),'switch_off');
+	print '</a></td>';
+}
+print '</tr>';
+print '</form>';
+
+$num=count($list);
 foreach ($list as $key)
 {
 	$var=!$var;
@@ -267,8 +333,8 @@ foreach ($list as $key)
 	print '<tr '.$bc[$var].' class="value">';
 
 	// Param
-	$libelle = $langs->trans($key); 
-	print '<td>'.$libelle;
+	$label = $langs->trans($key); 
+	print '<td>'.$label;
 	//print ' ('.$key.')';
 	print "</td>\n";
 
@@ -283,10 +349,10 @@ foreach ($list as $key)
 	$i++;
 }
 
-if ($num)
-{
+//if ($num)
+//{
 	print "</table>\n";
-}
+//}
 
 dol_htmloutput_mesg($mesg);
 

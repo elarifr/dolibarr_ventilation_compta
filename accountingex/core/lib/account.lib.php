@@ -1,6 +1,7 @@
 <?php
 /* Copyright (C) 2013-2014 Olivier Geffroy      <jeff@jeffinfo.com>
  * Copyright (C) 2013-2014 Alexandre Spangaro   <alexandre.spangaro@gmail.com> 
+ * Copyright (C) 2014      Ari Elbaz (elarifr)  <github@accedinfo.com>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -37,7 +38,7 @@ function admin_account_prepare_head($object)
 
 	$head[$h][0] = dol_buildpath('/accountingex/admin/index.php',1);
 	$head[$h][1] = $langs->trans("Configuration");
-	$head[$h][2] = 'configuration';
+	$head[$h][2] = 'general';
 	$h++;
 
 	// Show more tabs from modules
@@ -46,12 +47,17 @@ function admin_account_prepare_head($object)
     // $this->tabs = array('entity:-tabname);   												to remove a tab
 	complete_head_from_modules($conf,$langs,$object,$head,$h,'accountingex_admin');
 
+	$head[$h][0] = dol_buildpath('/accountingex/admin/journaux.php',1);
+	$head[$h][1] = $langs->trans("Journaux");
+	$head[$h][2] = 'journal';
+	$h++;
+
 	$head[$h][0] = dol_buildpath('/accountingex/admin/export.php',1);
 	$head[$h][1] = $langs->trans("Export");
 	$head[$h][2] = 'export';
 	$h++;
   
-  $head[$h][0] = dol_buildpath('/accountingex/admin/about.php',1);
+	$head[$h][0] = dol_buildpath('/accountingex/admin/about.php',1);
 	$head[$h][1] = $langs->trans("About");
 	$head[$h][2] = 'about';
 	$h++;
@@ -176,7 +182,7 @@ function length_accountg($account)
         while ($i < $g)
         {
           $account .= '0';
-
+            
           $i++;
         }
         
@@ -205,7 +211,7 @@ function length_accounta($accounta)
 	global $conf,$langs;
   
   $a = $conf->global->ACCOUNTINGEX_LENGTH_AACCOUNT;
-
+  
   if (! empty($a))
   {
     // Clean parameters
@@ -234,6 +240,36 @@ function length_accounta($accounta)
   }
 }
 
+function length_exportsage($txt, $len, $end)
+//$txt = utf8_decode($txt);
+// problem with this function, but we need to have the number of letter
+{ if (strlen($txt)==$len){
+  	$res=$txt;
+  }
+  
+  elseif (strlen($txt)>$len){
+  	$res=substr($txt,0,$len);
+  }
+  
+  else{
+  	if($end == 1){
+		$res = $txt;
+	}
+	else{
+		$res ="";
+	}
+  	for ($i=strlen($txt);$i<=($len-1);$i++){
+		$res.=" ";
+	}
+	if ($end == 0){
+		$res.=$txt;
+	}
+  }
+  return $res;
+	  
+  }
+
+// elari set full export name
 function accountingex_export_filename_set($filename,$journal_option)
 {
   global $conf;
@@ -243,9 +279,7 @@ function accountingex_export_filename_set($filename,$journal_option)
   if ($conf->global->ACCOUNTINGEX_EXPORT_FILENAME_JOURNAL == 1 )   {$filename .=$conf->global->ACCOUNTINGEX_EXPORT_FILENAME_SEPARATOR.$journal_option;}
   if ($conf->global->ACCOUNTINGEX_EXPORT_FILENAME_POSTDATING == 1) {$filename .=$conf->global->ACCOUNTINGEX_EXPORT_FILENAME_SEPARATOR.strftime("%Y%m%d%H%M");}
   if ($conf->global->ACCOUNTINGEX_EXPORT_FILENAME_EXTENSION != "") {$filename .=$conf->global->ACCOUNTINGEX_EXPORT_FILENAME_EXTENSION;} else {$filename .=".csv";}
-
   return $filename;
-
 }
 
 ?>

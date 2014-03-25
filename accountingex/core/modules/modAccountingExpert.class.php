@@ -2,6 +2,7 @@
 /* Copyright (C) 2010-2011 Regis Houssin        <regis@dolibarr.fr>
  * Copyright (C) 2013-2014 Olivier Geffroy      <jeff@jeffinfo.com>
  * Copyright (C) 2013-2014 Alexandre Spangaro   <alexandre.spangaro@gmail.com>
+ * Copyright (C) 2014      Ari Elbaz (elarifr)  <github@accedinfo.com>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -77,18 +78,19 @@ class modAccountingExpert extends DolibarrModules
 		$this->const[2] = array("ACCOUNTINGEX_ACCOUNT_SUSPENSE","chaine","471");
 		$this->const[3] = array("ACCOUNTINGEX_SELL_JOURNAL","chaine","VTE");
 		$this->const[4] = array("ACCOUNTINGEX_PURCHASE_JOURNAL","chaine","ACH");
-		$this->const[5] = array("ACCOUNTINGEX_BANK_JOURNAL","chaine","BQ");
-		$this->const[6] = array("ACCOUNTINGEX_SOCIAL_JOURNAL","chaine","SOC");    
-		$this->const[7] = array("ACCOUNTINGEX_CASH_JOURNAL","chaine","CAI");    
+		//asparango removed and renum . keep CONSTAANT constant to avoid update settings
+		//$this->const[5] = array("ACCOUNTINGEX_BANK_JOURNAL_DEPRECATED","chaine","BQ");
+		$this->const[6] = array("ACCOUNTINGEX_SOCIAL_JOURNAL","chaine","SOC");
+		$this->const[7] = array("ACCOUNTINGEX_CASH_JOURNAL","chaine","CAI");
 		$this->const[8] = array("ACCOUNTINGEX_MISCELLANEOUS_JOURNAL","chaine","OD");
-    $this->const[9] = array("ACCOUNTINGEX_ACCOUNT_TRANSFER_CASH","chaine","58");
-    $this->const[10] = array("CHARTOFACCOUNTS","chaine","2");
-    $this->const[11] = array("ACCOUNTINGEX_MODELCSV","chaine","0");
-    $this->const[12] = array("ACCOUNTINGEX_LENGTH_GACCOUNT","chaine","");
+		$this->const[9] = array("ACCOUNTINGEX_ACCOUNT_TRANSFER_CASH","chaine","58");
+		$this->const[10] = array("CHARTOFACCOUNTS","chaine","2");
+		$this->const[11] = array("ACCOUNTINGEX_MODELCSV","chaine","0");
+		$this->const[12] = array("ACCOUNTINGEX_LENGTH_GACCOUNT","chaine","");
 		$this->const[13] = array("ACCOUNTINGEX_LENGTH_AACCOUNT","chaine","");
-    $this->const[14] = array("LIMIT_LIST_VENTILATION","chaine","50");
-		$this->const[15] = array("LIST_SORT_VENTILATION","chaine","DESC");
-
+		$this->const[14] = array("ACCOUNTINGEX_LIMIT_LIST_VENTILATION","chaine","50");
+		$this->const[15] = array("ACCOUNTINGEX_LIST_SORT_VENTILATION_TODO","yesno","1");
+		$this->const[5] = array("ACCOUNTINGEX_LIST_SORT_VENTILATION_DONE","yesno","1");
 		$this->const[16] = array("ACCOUNTINGEX_SELL_DETAILED","chaine","1");
 		$this->const[17] = array("ACCOUNTINGEX_SELL_EXPORTZERO","chaine","0");
 		$this->const[18] = array("ACCOUNTINGEX_EXPORT_FOLDER01","chaine","C:\%USERPROFILE%");
@@ -99,7 +101,7 @@ class modAccountingExpert extends DolibarrModules
 		$this->const[23] = array("ACCOUNTINGEX_EXPORT_FILENAME_POSTDATING","chaine","1");
 		$this->const[24] = array("ACCOUNTINGEX_EXPORT_FILENAME_EXTENSION","chaine",".csv");
 		$this->const[25] = array("ACCOUNTINGEX_EXPORT_FILENAME_SEPARATOR","chaine","_");
-
+    
     // Css
     $this->module_parts = array('css' => array('/accountingex/css/accountingex.css.php'));
     		
@@ -263,20 +265,7 @@ class modAccountingExpert extends DolibarrModules
 		            'url'=>'/accountingex/journal/purchasesjournal.php',
 		            'langs'=>'accountingex@accountingex',
 		            'position'=>122,
-		            'enabled'=>1,
-		            'perms'=>'$conf->fournisseur->enabled',
-		            'target'=>'',
-		            'user'=>0);
-    $r++;
-    
-    $this->menu[$r]=array(  'fk_menu'=>'r=7',
-		            'type'=>'left',
-		            'titre'=>'BankJournal',
-		            'mainmenu'=>'accounting',
-		            'url'=>'/accountingex/journal/bankjournal.php',
-		            'langs'=>'accountingex@accountingex',
-		            'position'=>123,
-		            'enabled'=>1,
+		            'enabled'=>'$conf->fournisseur->enabled',
 		            'perms'=>1,
 		            'target'=>'',
 		            'user'=>0);
@@ -288,12 +277,27 @@ class modAccountingExpert extends DolibarrModules
 		            'mainmenu'=>'accounting',
 		            'url'=>'/accountingex/journal/cashjournal.php',
 		            'langs'=>'accountingex@accountingex',
-		            'position'=>124,
+		            'position'=>123,
 		            'enabled'=>1,
-		            'perms'=>'$user->rights->accountingex->dev',
+		            'perms'=>1,
 		            'target'=>'',
 		            'user'=>0);
     $r++;
+    
+    $this->menu[$r]=array(  'fk_menu'=>'r=7',
+		            'type'=>'left',
+		            'titre'=>'BankJournal',
+		            'mainmenu'=>'accounting',
+		            'url'=>'/accountingex/journal/bankjournal.php',
+		            'langs'=>'accountingex@accountingex',
+		            'position'=>200,
+		            'enabled'=>'$conf->banque->enabled',
+		            'perms'=>1,
+		            'target'=>'',
+		            'user'=>0);
+    $r++;
+    
+    
 				
 		$this->menu[$r]=array(	'fk_menu'=>'r=0',
 								'type'=>'left',
@@ -301,7 +305,7 @@ class modAccountingExpert extends DolibarrModules
 								'mainmenu'=>'accounting',
 								'url'=>'/accountingex/bookkeeping/liste.php',
 								'langs'=>'accountingex@accountingex',
-								'position'=>130,
+								'position'=>300,
 								'enabled'=>1,
 								'perms'=>1,
 								'target'=>'',
@@ -314,7 +318,7 @@ class modAccountingExpert extends DolibarrModules
 								'mainmenu'=>'accounting',
 		            'url'=>'/accountingex/bookkeeping/listebyyear.php',
 		            'langs'=>'accountingex@accountingex',
-		            'position'=>131,
+		            'position'=>301,
 		            'enabled'=>1,
 		            'perms'=>1,
 		            'target'=>'',
@@ -327,7 +331,7 @@ class modAccountingExpert extends DolibarrModules
 		            'mainmenu'=>'accounting',
 		            'url'=>'/accountingex/bookkeeping/balancebymonth.php',
 		            'langs'=>'accountingex@accountingex',
-		            'position'=>132,
+		            'position'=>302,
 		            'enabled'=>1,
 		            'perms'=>1,
 		            'target'=>'',
@@ -341,7 +345,7 @@ class modAccountingExpert extends DolibarrModules
 								'mainmenu'=>'accounting',
 								'url'=>'/accountingex/admin/index.php',
 								'langs'=>'accountingex@accountingex',
-								'position'=>140,
+								'position'=>400,
 								'enabled'=>1,
 								'perms'=>'$user->rights->accountingex->admin',
 								'target'=>'',
@@ -354,7 +358,7 @@ class modAccountingExpert extends DolibarrModules
 								'mainmenu'=>'accounting',
 		            'url'=>'/accountingex/admin/index.php',
 		            'langs'=>'accountingex@accountingex',
-		            'position'=>141,
+		            'position'=>401,
 		            'enabled'=>1,
 		            'perms'=>'$user->rights->accountingex->admin',
 		            'target'=>'',
@@ -367,7 +371,7 @@ class modAccountingExpert extends DolibarrModules
 		            'mainmenu'=>'accounting',
 		            'url'=>'/accountingex/admin/account.php',
 		            'langs'=>'accountingex@accountingex',
-		            'position'=>142,
+		            'position'=>402,
 		            'enabled'=>1,
 		            'perms'=>'$user->rights->accountingex->admin',
 		            'target'=>'',
@@ -380,7 +384,7 @@ class modAccountingExpert extends DolibarrModules
 		            'mainmenu'=>'accounting',
 		            'url'=>'/accountingex/admin/account.php',
 		            'langs'=>'accountingex@accountingex',
-		            'position'=>143,
+		            'position'=>403,
 		            'enabled'=>1,
 		            'perms'=>'$user->rights->accountingex->admin',
 		            'target'=>'',
@@ -393,7 +397,7 @@ class modAccountingExpert extends DolibarrModules
 		            'mainmenu'=>'accounting',
 		            'url'=>'/accountingex/admin/thirdpartyaccount.php',
 		            'langs'=>'accountingex@accountingex',
-		            'position'=>144,
+		            'position'=>404,
 		            'enabled'=>1,
 		            'perms'=>'$user->rights->accountingex->admin',
 		            'target'=>'',
@@ -406,7 +410,7 @@ class modAccountingExpert extends DolibarrModules
 		            'mainmenu'=>'accounting',
 		            'url'=>'/accountingex/admin/productaccount.php',
 		            'langs'=>'accountingex@accountingex',
-		            'position'=>145,
+		            'position'=>405,
 		            'enabled'=>1,
 		            'perms'=>'$user->rights->accountingex->admin',
 		            'target'=>'',

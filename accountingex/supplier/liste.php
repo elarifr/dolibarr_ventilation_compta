@@ -4,6 +4,7 @@
  * Copyright (C) 2004      Laurent Destailleur  <eldy@users.sourceforge.net>
  * Copyright (C) 2013-2014 Olivier Geffroy      <jeff@jeffinfo.com>
  * Copyright (C) 2013-2014 Alexandre Spangaro   <alexandre.spangaro@fidurex.fr>  
+ * Copyright (C) 2014      Ari Elbaz (elarifr)  <github@accedinfo.com> 
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -58,10 +59,10 @@ llxHeader('',$langs->trans("Ventilation"));
 
 if($_POST["action"] == 'ventil')
   {
-  print '<div><font color="red">Debut du traitement... </font></div>';
+  print '<div><font color="red">'.$langs->trans("Processing").'...</font></div>';
   if($_POST['codeventil'] && $_POST["mesCasesCochees"])
   {
-    print '<div><font color="red">'.count($_POST["mesCasesCochees"])." Lignes selectionnees</font></div>";
+    print '<div><font color="red">'.count($_POST["mesCasesCochees"]).' '.$langs->trans("SelectedLines").'</font></div>';
     $mesLignesCochees=$_POST['mesCasesCochees'];
     $mesCodesVentilChoisis = $_POST['codeventil'];
     $cpt = 0;
@@ -133,18 +134,18 @@ if ($resultCompte)
  */
 $page = $_GET["page"];
 if ($page < 0) $page = 0;
-$limit = $conf->global->LIMIT_LIST_VENTILATION;
+$limit = $conf->global->ACCOUNTINGEX_LIMIT_LIST_VENTILATION;
 $offset = $limit * $page ;
 
 $sql = "SELECT f.ref, f.rowid as facid, f.ref_supplier, l.fk_product, l.description, l.total_ht as price, l.rowid, l.fk_code_ventilation, ";
-$sql.= " p.rowid as product_id, p.ref as product_ref, p.label as product_label, p.fk_product_type as type, p.accountancy_code_buy as code_buy";
+$sql.= " p.rowid as product_id, p.ref as product_ref, p.label as product_label, p.fk_product_type as type, l.product_type as type_l, p.accountancy_code_buy as code_buy";
 $sql.= " FROM ".MAIN_DB_PREFIX."facture_fourn as f";
 $sql.= " , ".MAIN_DB_PREFIX."facture_fourn_det as l";
 $sql.= " LEFT JOIN ".MAIN_DB_PREFIX."product as p ON p.rowid = l.fk_product";
 $sql.= " WHERE f.rowid = l.fk_facture_fourn AND f.fk_statut > 0 AND fk_code_ventilation = 0";
-$sql.= " ORDER BY l.rowid";
-if (! empty($conf->global->LIST_SORT_VENTILATION)) { $sql.= " DESC "; }
-$sql.= $db->plimit($limit+1,$offset);
+$sql.= " ORDER BY f.rowid";
+if ($conf->global->ACCOUNTINGEX_LIST_SORT_VENTILATION_TODO == 1) { $sql.= " DESC"; }
+$sql.= ", l.rowid ".$db->plimit($limit+1,$offset);
 
 $result = $db->query($sql);
 if ($result)
@@ -152,7 +153,7 @@ if ($result)
   $num_lignes = $db->num_rows($result);
   $i = 0; 
   
-  print_barre_liste("Lignes de facture fournisseurs à ventiler",$page,"liste.php","",$sortfield,$sortorder,'',$num_lignes);
+  print_barre_liste($langs->trans("InvoiceLines"),$page,"liste.php","",$sortfield,$sortorder,'',$num_lignes);
 
   print '<td align="left"><br><b>'.$langs->trans("DescVentilTodoSupplier").'</b></br></td>';
 
@@ -179,6 +180,41 @@ if ($result)
     {
       $objp = $db->fetch_object($result);
       $var=!$var;
+	//TODO
+		//define account numbercode comptable si pas defini dans la fiche produit a partire des lignes de facturation
+		// product_type: 1 = service ? 0 = product
+		// if product does not exist we use the value of product_type provided in facturedet to define if this is a product or service
+		// issue : if we change product_type value in product DB it should differ from the value stored in facturedet DB !
+		$code_sell_notset = '';
+		
+		if (empty($objp->code_sell)) {
+			$code_sell_notset = 'color:red';
+			
+			if (! empty($objp->type))
+			{
+				if($objp->type == 0) 
+				{
+					$objp->code_buy = (! empty($conf->global->COMPTA_PRODUCT_BUY_ACCOUNT)?$conf->global->COMPTA_PRODUCT_BUY_ACCOUNT:$langs->trans("CodeNotDef"));
+				}
+				else 
+				{
+					$objp->code_buy = (! empty($conf->global->COMPTA_SERVICE_BUY_ACCOUNT)?$conf->global->COMPTA_SERVICE_BUY_ACCOUNT:$langs->trans("CodeNotDef"));
+				}
+			}
+			else 
+			{
+				$code_sell_notset = 'color:blue';
+				if($objp->type_l == 0)
+				{
+					$objp->code_buy = (! empty($conf->global->COMPTA_PRODUCT_BUY_ACCOUNT)?$conf->global->COMPTA_PRODUCT_BUY_ACCOUNT:$langs->trans("CodeNotDef"));
+				}
+				else 
+				{
+					$objp->code_buy = (! empty($conf->global->COMPTA_SERVICE_BAY_ACCOUNT)?$conf->global->COMPTA_SERVICE_BUY_ACCOUNT:$langs->trans("CodeNotDef"));
+				}
+			}
+		}
+
       print "<tr $bc[$var]>";
       
       // Ref facture
