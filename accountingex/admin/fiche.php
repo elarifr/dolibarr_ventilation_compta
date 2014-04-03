@@ -315,6 +315,7 @@ else if ($id)
 			{
 				print '<a class="butActionRefused" href="#" title="' . dol_escape_htmltag ( $langs->trans ( "NotAllowed" ) ) . '">' . $langs->trans ( 'Modify' ) . '</a>';
 			}
+			
 			if ($user->rights->accountingex->admin) 
 			{
 				print '<a class="butActionDelete" href="' . $_SERVER ["PHP_SELF"] . '?action=delete&id=' . $id . '">' . $langs->trans ( 'Delete' ) . '</a>';

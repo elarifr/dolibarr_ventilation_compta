@@ -3,8 +3,8 @@
  * Copyright (C) 2004      Eric Seigne          <eric.seigne@ryxeo.com>
  * Copyright (C) 2004      Laurent Destailleur  <eldy@users.sourceforge.net>
  * Copyright (C) 2013-2014 Olivier Geffroy      <jeff@jeffinfo.com>
- * Copyright (C) 2013-2014 Alexandre Spangaro   <alexandre.spangaro@fidurex.fr>  
- * Copyright (C) 2014      Ari Elbaz (elarifr)  <github@accedinfo.com> 
+ * Copyright (C) 2013-2014 Alexandre Spangaro   <alexandre.spangaro@gmail.com>
+ * Copyright (C) 2014      Ari Elbaz (elarifr)  <github@accedinfo.com>   
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -77,7 +77,8 @@ if($_POST["action"] == 'ventil')
       $sql = " UPDATE ".MAIN_DB_PREFIX."facture_fourn_det";
       $sql .= " SET fk_code_ventilation = ".$monCompte;
       $sql .= " WHERE rowid = ".$monId;
-
+      
+      dol_syslog('accountingext/supplier/liste.php:: sql='.$sql);
       if($db->query($sql))
       {
             print '<div><font color="green">'.$langs->trans("Lineofinvoice").' '.$monId.' '.$langs->trans("VentilatedinAccount").' : '.$monCompte.'</font></div>';
@@ -109,6 +110,7 @@ $sqlCompte .= " WHERE a.fk_pcg_version = s.pcg_version AND s.rowid=".$conf->glob
 $sqlCompte .= " AND a.active = '1'";
 $sqlCompte .= " ORDER BY a.account_number ASC";
 
+dol_syslog('accountingext/supplier/liste.php:: $sqlCompte='.$sqlCompte);
 $resultCompte = $db->query($sqlCompte);
 $cgs = array();
 $cgn = array();
@@ -147,6 +149,7 @@ $sql.= " ORDER BY f.rowid";
 if ($conf->global->ACCOUNTINGEX_LIST_SORT_VENTILATION_TODO == 1) { $sql.= " DESC"; }
 $sql.= ", l.rowid ".$db->plimit($limit+1,$offset);
 
+dol_syslog('accountingext/supplier/liste.php:: $sql='.$sql);
 $result = $db->query($sql);
 if ($result)
 {

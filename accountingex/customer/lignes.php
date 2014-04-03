@@ -2,8 +2,8 @@
 /* Copyright (C) 2002-2005 Rodolphe Quiedeville <rodolphe@quiedeville.org>
  * Copyright (C) 2006      Laurent Destailleur  <eldy@users.sourceforge.net>
  * Copyright (C) 2013-2014 Olivier Geffroy      <jeff@jeffinfo.com>
- * Copyright (C) 2013-2014 Alexandre Spangaro   <alexandre.spangaro@gmail.com>  
- * Copyright (C) 2014      Ari Elbaz (elarifr)  <github@accedinfo.com>
+ * Copyright (C) 2013-2014 Alexandre Spangaro   <alexandre.spangaro@gmail.com>
+ * Copyright (C) 2014      Ari Elbaz (elarifr)  <github@accedinfo.com>   
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -102,7 +102,7 @@ llxHeader ( '',$langs->trans("CustomersVentilation").' - '.$langs->trans("Dispat
 $page = GETPOST ( "page" );
 if ($page < 0)
 	$page = 0;
-$limit = $conf->liste_limit;
+$limit = $conf->global->ACCOUNTINGEX_LIMIT_LIST_VENTILATION;
 $offset = $limit * $page;
 
 $sql = "SELECT l.rowid , f.facnumber, f.rowid as facid, l.fk_product, l.description, l.total_ht, l.qty, l.tva_tx, l.fk_code_ventilation, aa.label, aa.account_number,";
@@ -131,19 +131,10 @@ if (strlen ( trim ( GETPOST ( "search_account" ) ) )) {
 if ($typeid) {
 	$sql .= " AND c.intitule=" . $typeid;
 }
-
-//$sql .= " ORDER BY l.rowid DESC";
-//$sql .= $db->plimit ( $limit + 1, $offset );
-
-
+//elari
 $sql.= " ORDER BY f.rowid ";
 if ($conf->global->ACCOUNTINGEX_LIST_SORT_VENTILATION_DONE == 1) { $sql.= "DESC "; }
 $sql.= ", l.rowid ".$db->plimit($limit+1,$offset);
-
-
-
-
-
 
 $result = $db->query ( $sql );
 
