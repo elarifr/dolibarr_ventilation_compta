@@ -102,7 +102,8 @@ llxHeader ( '',$langs->trans("CustomersVentilation").' - '.$langs->trans("Dispat
 $page = GETPOST ( "page" );
 if ($page < 0)
 	$page = 0;
-$limit = $conf->global->ACCOUNTINGEX_LIMIT_LIST_VENTILATION;
+//$limit = $conf->global->ACCOUNTINGEX_LIMIT_LIST_VENTILATION;
+if (! empty($conf->global->ACCOUNTINGEX_LIMIT_LIST_VENTILATION)) { $limit = $conf->global->ACCOUNTINGEX_LIMIT_LIST_VENTILATION; } else { $limit = $conf->liste_limit;}
 $offset = $limit * $page;
 
 $sql = "SELECT l.rowid , f.facnumber, f.rowid as facid, l.fk_product, l.description, l.total_ht, l.qty, l.tva_tx, l.fk_code_ventilation, aa.label, aa.account_number,";
