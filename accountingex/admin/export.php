@@ -149,6 +149,14 @@ print '<option value="1"';
         print ' selected="selected"';
       } 
 print '>'.$langs->trans("Modelcsv_CEGID").'</option>';
+//elarifr temp added model export ciel
+print '<option value="20"';
+      if($conf->global->ACCOUNTINGEX_MODELCSV == 20)
+      {
+        print ' selected="selected"';
+      } 
+print '>'.$langs->trans("Modelcsv_XIMPORT.TXT").'</option>';
+//elarifr
 print "</select>";
 print "</td></tr>";
 print "</table>";

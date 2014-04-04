@@ -100,7 +100,7 @@ if (empty($date_start) || empty($date_end)) // We define date_start and date_end
 $p = explode(":", $conf->global->MAIN_INFO_SOCIETE_COUNTRY);
 $idpays = $p[0];
 
-$sql = "SELECT f.rowid, f.facnumber, f.type, f.datef as df, f.ref_client,";
+$sql = "SELECT f.rowid, f.facnumber, f.type, f.datef as df, f.ref_client, f.date_lim_reglement,";
 //elari we need fd.description to export in accounting
 $sql.= " fd.rowid as fdid, fd.description /* as pdesc */, fd.product_type, fd.total_ht, fd.total_tva, fd.tva_tx, fd.total_ttc,";
 $sql.= " s.rowid as socid, s.nom as name, s.code_compta, s.code_client,";
@@ -144,8 +144,8 @@ if ($result)
    	    // les variables
    	    $cptcli = (! empty($conf->global->COMPTA_ACCOUNT_CUSTOMER))?$conf->global->COMPTA_ACCOUNT_CUSTOMER:$langs->trans("CodeNotDef");
    	    $compta_soc = (! empty($obj->code_compta))?$obj->code_compta:$cptcli;
-		
-		
+
+
 		$compta_prod = $obj->compte;
 		if (empty($compta_prod))
 		{
@@ -159,6 +159,7 @@ if ($result)
    		$tabfac[$obj->rowid]["date"] = $obj->df;
    		$tabfac[$obj->rowid]["ref"] = $obj->facnumber;
    		$tabfac[$obj->rowid]["type"] = $obj->type;
+   		$tabfac[$obj->rowid]["date_lim_reglement"] = $obj->date_lim_reglement;
       $tabfac[$obj->rowid]["description"] = $obj->description;
    		$tabfac[$obj->rowid]["fk_facturedet"] = $obj->fdid;
    		if (! isset($tabttc[$obj->rowid][$compta_soc])) $tabttc[$obj->rowid][$compta_soc]=0;
@@ -214,7 +215,7 @@ if (GETPOST('action') == 'writebookkeeping')
 
 		    $bookkeeping->create();
 		}
-		
+
 		// Product / Service
 		foreach ($tabht[$key] as $k => $mt)
 		{
@@ -243,7 +244,7 @@ if (GETPOST('action') == 'writebookkeeping')
 			    }
 			}
 		}
-		
+
 		// VAT
 		//var_dump($tabtva);
 		foreach ($tabtva[$key] as $k => $mt)
@@ -276,14 +277,14 @@ if (GETPOST('action') == 'export_csv')
 {
     $sep = $conf->global->ACCOUNTINGEX_SEPARATORCSV;
     $filename=accountingex_export_filename_set($filename="",$conf->global->ACCOUNTINGEX_SELL_JOURNAL);
-    
+
     header( 'Content-Type: text/csv' );
 //  header( 'Content-Disposition: attachment;filename=journal_ventes.csv');
 //  header( 'Content-Disposition: attachment;filename ='.$conf->global->ACCOUNTINGEX_EXPORT_FILENAME);
     header( 'Content-Disposition: attachment;filename ='.$filename);
-  	
+
     $companystatic=new Client($db);
-    
+
     if ($conf->global->ACCOUNTINGEX_MODELCSV == 1) // ModÃ¨le Cegid Expert
     {
       foreach ($tabfac as $key => $val)
@@ -291,9 +292,9 @@ if (GETPOST('action') == 'export_csv')
   	    $companystatic->id=$tabcompany[$key]['id'];
 	    	$companystatic->name=$tabcompany[$key]['name'];
 	    	$companystatic->client=$tabcompany[$key]['code_client'];
-        
+
         $date = dol_print_date($db->jdate($val["date"]),'%d%m%Y');
-    		
+
         print $date.$sep;
     		print $conf->global->ACCOUNTINGEX_SELL_JOURNAL.$sep;
         print length_accountg($conf->global->COMPTA_ACCOUNT_CUSTOMER).$sep;
@@ -306,7 +307,7 @@ if (GETPOST('action') == 'export_csv')
     		}
         print $val["ref"];
     		print "\n";
-    		
+
         // Product / Service
     		foreach ($tabht[$key] as $k => $mt)
     		{
@@ -342,17 +343,14 @@ if (GETPOST('action') == 'export_csv')
     		}
   	  }
     }
-    else
+    elseif ($conf->global->ACCOUNTINGEX_MODELCSV == 0) // ModÃ¨le Cegid Expert
     {
       foreach ($tabfac as $key => $val)
     	{
-//elarifr
-//print_r($tabdet2);
-//elarifr
         $companystatic->id=$tabcompany[$key]['id'];
 	    	$companystatic->name=$tabcompany[$key]['name'];
 	    	$companystatic->client=$tabcompany[$key]['code_client'];
-        
+
         $date = dol_print_date($db->jdate($val["date"]),'day');
     		print '"'.$date.'"'.$sep;
     		print '"'.$val["ref"].'"'.$sep;
@@ -379,7 +377,7 @@ if (GETPOST('action') == 'export_csv')
     				print "\n";
     			}
     		}
-    		
+
     		// VAT
     		//var_dump($tabtva);
     		foreach ($tabtva[$key] as $k => $mt)
@@ -396,8 +394,177 @@ if (GETPOST('action') == 'export_csv')
     		  }
     		}
   	  }
-    } 
+    }
+    elseif ($conf->global->ACCOUNTINGEX_MODELCSV == 20) // ModÃ¨le Ciel test Ximport
+    {
+      print "sample ximport ciel http://forum.gestan.fr/viewtopic.php?f=55&t=399&start=10". "\n";
+      print "   53HA20090106200801062152        401000     Facture EDF 2152               1196.00C2152              Fournisseurs divers               O2003". "\n";
+      foreach ($tabfac as $key => $val)
+    	{
+  	   $companystatic->id=$tabcompany[$key]['id'];
+           $companystatic->name=$tabcompany[$key]['name'];
+	   $companystatic->client=$tabcompany[$key]['code_client'];
+           $date = dol_print_date($db->jdate($val["date"]),'%d%m%Y');
+
+          // ########### test export ximport
+          // N° de Mouvement 5 caractères Numérique
+          $exportlinestart  = strftime("%y%j");
+          // Journal 2 caractères Alphanumérique
+          $exportlinestart .= str_pad(substr($conf->global->ACCOUNTINGEX_SELL_JOURNAL,0,2),2);
+          // Date d’écriture 8 caractères Date (AAAAMMJJ)
+          $exportlinestart .= dol_print_date($db->jdate($val["date"]),'%Y%m%d');
+          // Date d’échéance 8 caractères Date (AAAAMMJJ)                                // ok A RECUPERER DATE ECHEANCE  date_lim_reglement
+          $exportlinestart .= dol_print_date($db->jdate($val["date_lim_reglement"]),'%Y%m%d');
+          // N° de pièce 12 caractères Alphanumérique
+          $exportlinestart .= str_pad(substr($val["ref"],0,12),12);
+          // Compte 11 caractères Alphanumérique
+          // Libellé 25 caractères Alphanumérique
+          // Montant 13 caractères (2 déc.) Numérique
+          // Crédit-Débit 1 caractère (D ou C)
+
+          // N° de pointage 12 caractères Alphanumérique
+          //                123456789012
+          $exportanalyt  = "            ";
+          // Code analyt./budgét 6 caractères Alphanumérique
+          //                123456
+          $exportanalyt .= "      " ;
+          // Libellé du compte 34 caractères Alphanumérique
+
+          // Euro 1 caractère Alphanumérique
+          // Avec en plus pour le format Ciel 2003 : Version 4 caractères Alphanumérique
+          $exportlineclose  = "02003";                                                  // c'est surement plus ok mais j'attend modele export de gestcom
+
+          // SELL INVOICE
+          // begin export line
+          print $exportlinestart;
+          // Compte 11 caractères Alphanumérique
+          print str_pad(substr($conf->global->COMPTA_ACCOUNT_CUSTOMER,0,11),11,"0");
+          // Libellé 25 caractères Alphanumérique
+          print  str_pad(substr(ucfirst(strtolower(utf8_decode($companystatic->name))),0,25),25);
+          // Montant 13 caractères (2 déc.) Numérique
+          //$mt<=0?price(-$mt):
+          print str_pad(number_format(($mt<=0?-$mt:$mt),2,'.',''),13,' ', STR_PAD_LEFT);
+          // Crédit-Débit 1 caractère (D ou C)
+          print ($mt < 0?'C':'D');
+          // middle pointage & analytique not managed yet
+          print $exportanalyt;
+          // Libellé du compte 34 caractères Alphanumérique
+          print str_pad(substr(ucfirst(strtolower(utf8_decode("libelle compte"))),0,34),34);
+          // end of line depend of export version & euro to check
+    	  print $exportlineclose. "\n";
+
+        // Product / Service
+    		foreach ($tabht[$key] as $k => $mt)
+    		{
+                  if ($mt)
+                          {
+                          // begin export line
+                          print  $exportlinestart;
+                          // Compte 11 caractères Alphanumérique
+                          print str_pad(substr(html_entity_decode($k),0,11),11,"0");
+                          // Libellé 25 caractères Alphanumérique
+//                          $val["description"] = str_replace(CHR(13).CHR(11).CHR(10).CHR(09).CHR(00),"",$val["description"]);
+                          $val["description"] = str_replace(CHR(13).CHR(10),"",$val["description"]);
+                          $val["description"] = str_replace(CHR(11),"",$val["description"]);
+                          $val["description"] = str_replace(CHR(10),"",$val["description"]);
+//                          $val["description"] = dol_trunc($val["description"],30,'right','UTF-8',1);
+//                          $val["description"] = trim ( $val["description"] , "\x00..\x1F" );
+                          print  str_pad(substr(ucfirst(strtolower($val["description"])),0,25),25);
+                          // Montant 13 caractères (2 déc.) Numérique
+                          print str_pad(number_format(($mt<=0?-$mt:$mt),2,'.',''),13,' ', STR_PAD_LEFT);
+                          // Crédit-Débit 1 caractère (D ou C)
+                          print ($mt < 0?'C':'D');
+                          // middle pointage & analytique not managed yet
+                          print $exportanalyt;
+                          // Libellé du compte 34 caractères Alphanumérique
+                          print str_pad(substr(ucfirst(strtolower(utf8_decode("libelle compte"))),0,34),34);
+                          // end of line depend of export version & euro to check
+                          print $exportlineclose. "\n";
+    		          }
+    		}
+    		// TVA
+    		foreach ($tabtva[$key] as $k => $mt)
+    		{
+    		  if ($mt)
+                          {
+                          // begin export line
+                          print  $exportlinestart;
+                          // Compte 11 caractères Alphanumérique
+                          print str_pad(substr(html_entity_decode($k),0,11),11,"0");
+                          // Libellé 25 caractères Alphanumérique
+                          print $langs->trans("VAT");
+                          // Montant 13 caractères (2 déc.) Numérique
+                          print str_pad(number_format(($mt<=0?-$mt:$mt),2,'.',''),13,' ', STR_PAD_LEFT);
+                          // Crédit-Débit 1 caractère (D ou C)
+                          print ($mt < 0?'C':'D');
+                          // middle pointage & analytique not managed yet
+                          print $exportanalyt;
+                          // Libellé du compte 34 caractères Alphanumérique
+                          print str_pad(substr(ucfirst(strtolower(utf8_decode("libelle compte"))),0,34),34);
+                          // end of line depend of export version & euro to check
+                          print $exportlineclose. "\n";
+    		          }
+    		}
+
+          // ########### test export ximport
+          /*
+  	    $companystatic->id=$tabcompany[$key]['id'];
+	    	$companystatic->name=$tabcompany[$key]['name'];
+	    	$companystatic->client=$tabcompany[$key]['code_client'];
+
+        $date = dol_print_date($db->jdate($val["date"]),'%d%m%Y');
+
+        print $date.$sep;
+    		print $conf->global->ACCOUNTINGEX_SELL_JOURNAL.$sep;
+        print length_accountg($conf->global->COMPTA_ACCOUNT_CUSTOMER).$sep;
+        foreach ($tabttc[$key] as $k => $mt)
+    		{
+    			print length_accounta(html_entity_decode($k)).$sep;
+          print ($mt < 0?'C':'D').$sep;
+          print ($mt<=0?price(-$mt):$mt).$sep;
+          print utf8_decode($companystatic->name).$sep;
+    		}
+        print $val["ref"];
+    		print "\n";
+
+        // Product / Service
+    		foreach ($tabht[$key] as $k => $mt)
+    		{
+    			if ($mt)
+    			{
+    				print $date.$sep;
+    				print $conf->global->ACCOUNTINGEX_SELL_JOURNAL.$sep;
+            print length_accountg(html_entity_decode($k)).$sep;
+            print $sep;
+            print ($mt < 0?'D':'C').$sep;
+            print ($mt<=0?price(-$mt):$mt).$sep;
+    				print dol_trunc($val["description"],32).$sep;
+//    			print $langs->trans("Products").$sep;
+            print $val["ref"];
+    				print "\n";
+    			}
+    		}
+    		// TVA
+    		foreach ($tabtva[$key] as $k => $mt)
+    		{
+    		  if ($mt)
+    		  {
+      			print $date.$sep;
+      			print $conf->global->ACCOUNTINGEX_SELL_JOURNAL.$sep;
+            print length_accountg(html_entity_decode($k)).$sep;
+            print $sep;
+            print ($mt < 0?'D':'C').$sep;
+            print ($mt<=0?price(-$mt):$mt).$sep;
+      			print $langs->trans("VAT").$sep;
+            print $val["ref"];
+      			print "\n";
+    		  }
+    		}
+*/
+  	  }
+    }
 }
+//eand export
 else
 {
 
@@ -459,7 +626,7 @@ report_header($nom,$nomlink,$period,$periodlink,$description,$builddate,$exportl
 	$companystatic=new Client($db);
 
 //elarifr
-// print_r($tabht);
+// print_r($tabttc);
 //print_r($tabdet2);
 //elarifr
 	foreach ($tabfac as $key => $val)
@@ -499,7 +666,7 @@ report_header($nom,$nomlink,$period,$periodlink,$description,$builddate,$exportl
                 foreach ($tabdet2_filter as $k2=>$val2 )
 		{
                   //foreach ($detail as $k2=>$val2)
-                  print 'tabfac key='.$key . '-tabdet2 k='.$val2[fdet_rowid].$val2[fdet_facnumber].$val2[fdet_product_type].$val2[fdet_ref].$val2[fdet_desc].$val2[fdet_total_ht].'<br />';
+                  //print 'tabfac key='.$key . '-tabdet2 k='.$val2[fdet_rowid].$val2[fdet_facnumber].$val2[fdet_product_type].$val2[fdet_ref].$val2[fdet_desc].$val2[fdet_total_ht].'<br />';
 
 			if ($conf->global->ACCOUNTINGEX_SELL_EXPORTZERO==1 || $val2[fdet_total_ht] != 0)
 			{
