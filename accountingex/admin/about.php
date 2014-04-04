@@ -60,6 +60,14 @@ print '</tr>';
 // Alexandre Spangaro
 print '<tr><td><img src="../img/fidurex.jpg" width="250"></td><td><b>Alexandre Spangaro</b><br>Comptable<br>Cabinet Fidurex - 29 Boulevard de la Rochelle - 55000 Bar le Duc<br>Tél : 03.29.79.04.42 - @ : aspangaro AT fidurex DOT fr';
 print '</td></tr>'; 
+// Ari Elbaz - Accedinfo
+print '<tr><td><img src="../img/accedinfo.jpg" width="250"></td>';
+print '<td><b>Ari Elbaz</b>&nbsp;';
+print '<a title="Accedinfo.com Facebook" target="_blank" href="http://www.facebook.com/accedinfosav"><img src="../img/fb.png" width="20"></a>&nbsp;';
+print '<a target="_blank" href="http://twiter.com/elarifr"><img src="../img/tweet.png" width="20"></a>&nbsp;';
+print '<a target="_blank" href="https://plus.google.com/109875408706351786851"><img src="../img/google+.png" width="20"></a>';
+print '<br>Accedinfo.com<br>67000 Strasbourg<br>Tél : 03.88.33.77.47<br>';
+print '</td></tr>'; 
   
 
 
