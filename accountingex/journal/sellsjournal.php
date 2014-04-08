@@ -555,18 +555,19 @@ $nomlink='';
 $periodlink='';
 $exportlink='';
 $builddate=time();
-$description=$langs->trans("DescSellsJournal").'<br>';
+$filename=accountingex_export_filename_set($filename="",$conf->global->ACCOUNTINGEX_SELL_JOURNAL);
+$description=$langs->trans("DescSellsJournal").' '.$filename.'<br>';
 if (! empty($conf->global->FACTURE_DEPOSITS_ARE_JUST_PAYMENTS)) $description.= $langs->trans("DepositsAreNotIncluded");
 else  $description.= $langs->trans("DepositsAreIncluded");
 $period=$form->select_date($date_start,'date_start',0,0,0,'',1,0,1).' - '.$form->select_date($date_end,'date_end',0,0,0,'',1,0,1);
 report_header($nom,$nomlink,$period,$periodlink,$description,$builddate,$exportlink, array('action'=>'') );
 
 
-	
+
 	print '<input type="button" class="button" style="float: right;" value="Export CSV" onclick="launch_export();" />';
-	
+
 	print '<input type="button" class="button" value="'.$langs->trans("WriteBookKeeping").'" onclick="writebookkeeping();" />';
-	
+
 	print '
 	<script type="text/javascript">
 		function launch_export() {

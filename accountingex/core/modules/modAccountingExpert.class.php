@@ -59,11 +59,15 @@ class modAccountingExpert extends DolibarrModules
 		//$this->triggers = 1;
 
 		// Data directories to create when module is enabled
-		$this->dirs = array('/accountingex/temp');
+		// we need accountingexpert folder to use $conf->accountingexpert->dir_output which report documents/accountingexpert directory
+		$this->dirs = array(
+                            '/accountingex/temp',
+		            '/accountingexpert/exportjournal'
+                );
 
 		// Config pages
 		// $this->config_page_url = array('index.php@accountingex'); Deprecated - Need an admin page into the module directly - Not reserve for the admin
-		
+
 		// Dependencies
 		$this->depends = array();		// List of modules id that must be enabled if this module is enabled
 		$this->requiredby = array();	// List of modules id to disable if this one is disabled
@@ -416,6 +420,19 @@ class modAccountingExpert extends DolibarrModules
 		            'user'=>0);
      $r++;
      
+                                     // r=15 = indice du menu parent
+    $this->menu[$r]=array(  'fk_menu'=>'r=15',
+		            'type'=>'left',
+		            'titre'=>'Export All Test',
+		            'mainmenu'=>'accounting',
+		            'url'=>'/accountingex/journal/exportjournal.php',
+		            'langs'=>'accountingex@accountingex',
+		            'position'=>200,
+		            'enabled'=>1,
+		            'perms'=>1,
+		            'target'=>'',
+		            'user'=>0);
+    $r++;
      /*
      $this->menu[$r]=array(  'fk_menu'=>'r=14',
 		            'type'=>'left',
