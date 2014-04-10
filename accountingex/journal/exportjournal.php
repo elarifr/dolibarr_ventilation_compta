@@ -31,20 +31,32 @@ if (! $res) die("Include of main fails");
 
 // Class
 dol_include_once("/core/lib/admin.lib.php");
+dol_include_once("/core/lib/bank.lib.php");
 dol_include_once("/core/lib/date.lib.php");
 dol_include_once("/core/lib/files.lib.php");
 dol_include_once("/core/lib/report.lib.php");
 dol_include_once("/core/class/html.formfile.class.php");
 dol_include_once("/accountingex/core/lib/account.lib.php");
-dol_include_once("/compta/facture/class/facture.class.php");
+dol_include_once("/societe/class/societe.class.php");
+dol_include_once("/adherents/class/adherent.class.php");
+dol_include_once("/compta/sociales/class/chargesociales.class.php");
+dol_include_once("/compta/paiement/class/paiement.class.php");
+dol_include_once("/compta/tva/class/tva.class.php");
+dol_include_once("/fourn/class/paiementfourn.class.php");
+dol_include_once("/fourn/class/fournisseur.facture.class.php");
+dol_include_once("/fourn/class/fournisseur.class.php");
+dol_include_once("/accountingex/class/bookkeeping.class.php");
 dol_include_once("/societe/class/client.class.php");
+dol_include_once("/compta/facture/class/facture.class.php");
 dol_include_once("/accountingex/class/bookkeeping.class.php");
 dol_include_once("/accountingex/class/accountingaccount.class.php");
 
 // Langs
+$langs->load("companies");
 $langs->load("compta");
 $langs->load("bills");
 $langs->load("other");
+$langs->load("bank");
 $langs->load("main");
 $langs->load("accountingex@accountingex");
 
@@ -117,19 +129,91 @@ foreach ($list as $key)
  }
 }
 
+
+
+//QUERY DB & PREPARE DATA ARRAY TO DISPLAY
+//SHOULD BE CALLED ONLY if we have ACTION=export_xxxxx
+// TODO Move as a function and call function if needed according action
+	// FOR SELL JOURNAL
+	$tabfac 		= array();
+	$tabdet2 		= array();
+	$tabht 		= array();
+	$tabtva 		= array();
+	$tabttc 		= array();
+	$tabcompany 	= array();
+	if (ACCOUNTINGEX_EXPORTJOURNAL_SELL == 1 ){
+	$ressqlarray=@include("sellsjournal-sqlarray.php");
+	if (! $ressqlarray) print"Include of sellsjournal-sqlarray.php fails in accountingex/journal";
+	}
+	// FOR PURCHASESJOURNAL
+	if (ACCOUNTINGEX_EXPORTJOURNAL_PURCHASE == 1 ){
+	$ressqlarray=@include("purchasesjournal-sqlarray.php");
+	if (! $ressqlarray) print "Include of puchasesjournal-sqlarray.php fails in accountingex/journal";
+	}
+
+	$tabpay = array ();
+	$tabbq = array ();
+	$tabtp = array ();
+	$tabcompany = array ();
+	$tabtype = array ();
+	if (ACCOUNTINGEX_EXPORTJOURNAL_CASH == 1 ){
+	$ressqlarray=@include("cashjournal-sqlarray.php");
+	if (! $ressqlarray) print "Include of cashjournal-sqlarray.php fails in accountingex/journal";
+	}
+//	print "/////////////////////////////// TABPAY CASHJOURNAL ///////////////////////";
+//	print_r ($tabpay);
+	if (ACCOUNTINGEX_EXPORTJOURNAL_BANK == 1 ){
+	$ressqlarray=@include("bankjournal-sqlarray.php");
+	if (! $ressqlarray) print "Include of bankjournal-sqlarray.php fails in accountingex/journal";
+	}
+/*
+	print "/////////////////////////////// TABFAC SELLJOURNAL ///////////////////////";
+	print_r ($tabfac);
+	print "/////////////////////////////// TABDET2 SELLJOURNAL ///////////////////////";
+	print_r ($tabdet2);
+	print "/////////////////////////////// TABPAY BANKJOURNAL ///////////////////////";
+	print_r ($tabpay);
+	print "/////////////////////////////// TABBQ BANKJOURNAL ///////////////////////";
+	print_r ($tabbq);
+	print "/////////////////////////////// TABCOMPANY BANKJOURNAL ///////////////////////";
+	print_r ($tabcompany);
+*/
+
+
+
+
+
+// #####################################################################################
+// # Check action to do from GETPOST                                                   #
+// #####################################################################################
 // export journal
 // TODO add permission export by journal
-if (GETPOST('action') == 'export_csv')
+if (GETPOST('action') == 'export_file')
 {
+	// Export file
+	$res=@include("exportjournal-file.php");
+	if (! $res) print "Include of exportjournal-file.php fails in accountingex/journal";
+
+}
+
+// Export file
+if (GETPOST('action') == 'export_save')
+{
+	$res=@include("exportjournal-save.php");
+	if (! $res) print "Include of exportjournal-save.php fails in accountingex/journal";
 
 }
 
 // reset exported date in table will allow re-export
 // TODO : Add permission reset export date
-if (GETPOST('action') == 'export_csv')
+if (GETPOST('action') == 'export_reset')
 {
-
+	// Reset exported line
+	$res=@include("exportjournal-reset.php");
+	if (! $res) print "Include of exportjournal-reset.php fails in accountingex/journal";
 }
+
+
 
 /*
  * View
@@ -138,6 +222,7 @@ if (GETPOST('action') == 'export_csv')
 // # no action we set variables to display form / setting / output #
 // #################################################################
 $form=new Form($db);
+$formfile = new FormFile($db);
 $var=True;
 //TODO ADD TRANSLATION JOURNAL NAME LIST EXPORTED
 $filename_journal="";
@@ -170,68 +255,120 @@ else  $description.= $langs->trans("DepositsAreIncluded");
 llxHeader('',$nom);
 print '<div class="fichecenter">';
 //show header report to select date export range
-  print '<div class="fichehalfleft">';
-    report_header($nom,$nomlink,$period,$periodlink,$description,$builddate,$exportlink, array('action'=>'') );
-    print '<input type="button" class="button" style="float: right;" value="Export" onclick="launch_export();" />';
-    print '<input type="button" class="button" style="float: right;" value="Save" onclick="launch_export();" />';
-    print '<input type="button" class="button" style="float: right;" value="Folder2" onclick="launch_folder1();" />';
-    print '<input type="button" class="button" style="float: right;" value="Folder1" onclick="launch_folder2();" />';
-    //Export reset will be moved to setting / tab / export with OWN permission
-    print '<input type="button" class="button" style="float: right;" value="ExportedReset" onclick="launch_export_reset();" />';
-    //
-  print "</div>";
-  //show option to select journal to export
-  //TODO add perms to allow change journal export option
-  print '<div class="fichehalfright">';
-    print '<div class="tabBar">';
-      print '<table class="border" width="100%">';
-      //
-      $num=count($list);
-      print '<table class="noborder" width="100%">';
-        print '<tr class="liste_titre">';
-          print '<td colspan="3">'.$langs->trans('Journaux').'</td>';
-        print "</tr>\n";
-        // todo manage bank journal separatly
-        // add permission to allow change settings
-        foreach ($list as $key)
-        {
-          $var=!$var;
-	  $label = $langs->trans($key);
-          print '<form method="POST" action="'.$_SERVER['PHP_SELF'].'">';
-          print '<input type="hidden" name="token" value="'.$_SESSION['newtoken'].'">';
-          print '<input type="hidden" name="action" value="updateoptionsdone">';
-          print "<tr ".$bc[$var].">";
-          print '<td width="80%">'.$label.'</td>';
-          if (! empty($conf->global->$key))
-          {
-        	print '<td align="center" colspan="2"><a href="'.$_SERVER['PHP_SELF'].'?action='.$key.'&value=0">';
-         	print img_picto($langs->trans("Activated"),'switch_on');
-          	print '</a></td>';
-          }
-          else
-          {
-          print '<td align="center" colspan="2"><a href="'.$_SERVER['PHP_SELF'].'?action='.$key.'&value=1">';
-          print img_picto($langs->trans("Disabled"),'switch_off');
-          print '</a></td>';
-          }
-          print '</tr>';
-          print '</form>';
-          $i++;
-        }
-      print '</table>';
-      print '</table>';
-    print "</div>";
-  print "</div>";
-print '</div>';
+	print '<div class="fichehalfleft">';
+		report_header($nom,$nomlink,$period,$periodlink,$description,$builddate,$exportlink, array('action'=>'') );
+		print '<input type="button" class="button" style="float: right;" value="Preview" onclick="launch_preview();" />';  // preview line to export
+		print '<input type="button" class="button" style="float: right;" value="Export" onclick="launch_export();" />';    // download export
+		print '<input type="button" class="button" style="float: right;" value="Save" onclick="launch_export_save();" />'; // save export in local server documents/accountingexpert folder
+		print '<input type="button" class="button" style="float: right;" value="Folder2" onclick="launch_folder1();" />';  // open local user folder1
+		print '<input type="button" class="button" style="float: right;" value="Folder1" onclick="launch_folder2();" />';  // open local user folder2
+		//Export reset will be moved to setting / tab / export with OWN permission
+		print '<input type="button" class="button" style="float: right;" value="ExportedReset" onclick="launch_export_reset();" />'; // planned, May reset export date value in db to allow re-exporting
+		//
+	print "</div>";
+	//show option to select journal to export
+	//TODO add perms to allow change journal export option
+	print '<div class="fichehalfright">';
+		print '<div class="tabBar">';
+		print '<table class="border" width="100%">';
+		//
+		$num=count($list);
+		print '<table class="noborder" width="100%">';
+			print '<tr class="liste_titre">';
+				 print '<td colspan="3">'.$langs->trans('Journaux').'</td>';
+			print "</tr>\n";
+			// todo manage bank journal separatly
+			// add permission to allow change settings
+			foreach ($list as $key)
+			{
+				$var=!$var;
+				$label = $langs->trans($key);
+				print '<form method="POST" action="'.$_SERVER['PHP_SELF'].'">';
+				print '<input type="hidden" name="token" value="'.$_SESSION['newtoken'].'">';
+				print '<input type="hidden" name="action" value="updateoptionsdone">';
+				print "<tr ".$bc[$var].">";
+				print '<td width="80%">'.$label.'</td>';
+				if (! empty($conf->global->$key))
+				{
+				print '<td align="center" colspan="2"><a href="'.$_SERVER['PHP_SELF'].'?action='.$key.'&value=0">';
+				print img_picto($langs->trans("Activated"),'switch_on');
+				print '</a></td>';
+			}
+			else
+			{
+				print '<td align="center" colspan="2"><a href="'.$_SERVER['PHP_SELF'].'?action='.$key.'&value=1">';
+				print img_picto($langs->trans("Disabled"),'switch_off');
+				print '</a></td>';
+				}
+				print '</tr>';
+				print '</form>';
+				$i++;
+			}
+		print '</table>';
+		print '</table>';
+	  print "</div>";
+	print "</div>";	// end fichehalfright
+print '</div>';	// end fichecenter
 
-//print '<input type="button" class="button" style="float: right;" value="Export CSV" onclick="launch_export();" />';
+/*
+ * Show result array
+ */
+
+print '<br />';
+print '<div class="fichecenter">';
+if (GETPOST('action') == 'preview')
+{
+	//preview data
+	$res=@include("exportjournal-preview.php");
+	if (! $res) print "Include of exportjournal-preview.php fails in accountingex/journal";
+	print "<br />/////////////////////////////// TABFAC SELLJOURNAL ///////////////////////<br />";
+	print_r ($tabfac);
+	print "<br />/////////////////////////////// TABDET2 SELLJOURNAL ///////////////////////<br />";
+	print_r ($tabdet2);
+	print "<br />/////////////////////////////// TABPAY BANKJOURNAL ///////////////////////<br />";
+	print_r ($tabpay);
+	print "<br />/////////////////////////////// TABBQ BANKJOURNAL ///////////////////////<br />";
+	print_r ($tabbq);
+	print "<br />/////////////////////////////// TABCOMPANY BANKJOURNAL ///////////////////////<br />";
+	print_r ($tabcompany);
+
+}
+else
+{
+	// TODO maybe we can move exported files as a tab
+	$filearray=dol_dir_list($conf->accountingexpert->dir_output.'/exportjournal','files',0,'','',$sortfield,(strtolower($sortorder)=='asc'?SORT_ASC:SORT_DESC),1);
+	// should be in folder accountingex but $conf->accountingexpert->dir_output is accountingexpert
+	print_r ( $filearray );
+	// print '################$conf->accountingexpert->dir_output='.$conf->accountingexpert->dir_output.'-#####################<br />';
+	//print_r ( $conf );
+	//$result=$formfile->list_of_documents($filearray,null,'accountingexpert/exportjournal','',1,'',1,0,$langs->trans("NoBackupFileAvailable"),0,$langs->trans("PreviousDumpFiles"));
+	$result=$formfile->list_of_documents($filearray,null,'accountingexpert','',1,'',1,0,$langs->trans("NoBackupFileAvailable"),0,$langs->trans("PreviousDumpFiles"));
+}
+print '<br />';
+print '<br />';
+print '</div>';	// end fichecenter
+
+// End of page
+llxFooter();
+
+$db->close();
 
 //TODO ADD BUTTON FUNCTION
 print  '<script type="text/javascript">
+		function launch_preview() {
+			$("div.fiche div.tabBar form input[name=\"action\"]").val("preview");
+			$("div.fiche div.tabBar form input[type=\"submit\"]").click();
+			$("div.fiche div.tabBar form input[name=\"action\"]").val("");
+		}
 		function launch_export() {
-		    $("div.fiche div.tabBar form input[name=\"action\"]").val("export_csv");
+		    $("div.fiche div.tabBar form input[name=\"action\"]").val("export_file");
 			$("div.fiche div.tabBar form input[type=\"submit\"]").click();
 		    $("div.fiche div.tabBar form input[name=\"action\"]").val("");
+		}
+		function launch_export_save() {
+			$("div.fiche div.tabBar form input[name=\"action\"]").val("export_save");
+			$("div.fiche div.tabBar form input[type=\"submit\"]").click();
+			$("div.fiche div.tabBar form input[name=\"action\"]").val("");
 		}
 		function launch_export_reset() {
 		    $("div.fiche div.tabBar form input[name=\"action\"]").val("export_reset");
@@ -239,23 +376,3 @@ print  '<script type="text/javascript">
 		    $("div.fiche div.tabBar form input[name=\"action\"]").val("");
 		}
 	</script>';
-/*
- * Show result array
- */
-
-print '<br />';
-
-$filearray=dol_dir_list($conf->accountingexpert->dir_output.'/exportjournal','files',0,'','',$sortfield,(strtolower($sortorder)=='asc'?SORT_ASC:SORT_DESC),1);
-// should be in folder accountingex but
-print_r ( $filearray );
-print '################$conf->accountingexpert->dir_output='.$conf->accountingexpert->dir_output.'-#####################<br />';
-print_r ( $conf );
-$result=$formfile->list_of_documents($filearray,null,'','',1,'',1,0,$langs->trans("NoBackupFileAvailable"),0,$langs->trans("PreviousDumpFiles"));
-print '<br />';
-print '<br />';
-
-
-// End of page
-llxFooter();
-
-$db->close();

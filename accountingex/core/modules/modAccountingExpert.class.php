@@ -67,7 +67,7 @@ class modAccountingExpert extends DolibarrModules
 
 		// Config pages
 		// $this->config_page_url = array('index.php@accountingex'); Deprecated - Need an admin page into the module directly - Not reserve for the admin
-
+		
 		// Dependencies
 		$this->depends = array();		// List of modules id that must be enabled if this module is enabled
 		$this->requiredby = array();	// List of modules id to disable if this one is disabled

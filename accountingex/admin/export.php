@@ -149,7 +149,7 @@ print '<option value="1"';
         print ' selected="selected"';
       } 
 print '>'.$langs->trans("Modelcsv_CEGID").'</option>';
-//elarifr temp added model export ciel
+//elarifr temp added model ximport ciel
 print '<option value="20"';
       if($conf->global->ACCOUNTINGEX_MODELCSV == 20)
       {

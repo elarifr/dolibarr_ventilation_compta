@@ -100,9 +100,23 @@ if (empty($date_start) || empty($date_end)) // We define date_start and date_end
 $p = explode(":", $conf->global->MAIN_INFO_SOCIETE_COUNTRY);
 $idpays = $p[0];
 
+	$tabfac = array();
+	//elarifr test
+	//$tabdet2 = array();
+	//elarifr test
+	$tabht = array();
+	$tabtva = array();
+	$tabttc = array();
+	$tabcompany = array();
+
+//	$ressqlarray=@include("sellsjournal-sqlarray.php");
+//	if (! $ressqlarray) die("Include of exportjournal-sqlarray.php fails in accountingex/journal");
+
+
+// Should be Moved in sellsjournal-sqlarray.php
 $sql = "SELECT f.rowid, f.facnumber, f.type, f.datef as df, f.ref_client, f.date_lim_reglement,";
 //elari we need fd.description to export in accounting
-$sql.= " fd.rowid as fdid, fd.description /* as pdesc */, fd.product_type, fd.total_ht, fd.total_tva, fd.tva_tx, fd.total_ttc,";
+$sql.= " fd.rowid as fdid, fd.description, fd.product_type, fd.total_ht, fd.total_tva, fd.tva_tx, fd.total_ttc,";
 $sql.= " s.rowid as socid, s.nom as name, s.code_compta, s.code_client,";
 $sql.= " p.rowid as pid, p.ref as pref, p.accountancy_code_sell, aa.rowid as fk_compte, aa.account_number as compte, aa.label as label_compte, ";
 $sql.= " ct.accountancy_code_sell as account_tva";
@@ -125,15 +139,6 @@ dol_syslog('accountingex/journal/sellsjournal.php:: $sql='.$sql);
 $result = $db->query($sql);
 if ($result)
 {
-	$tabfac = array();
-	//elarifr test
-	//$tabdet2 = array();
-	//elarifr test
-	$tabht = array();
-	$tabtva = array();
-	$tabttc = array();
-	$tabcompany = array();
-
 	$num = $db->num_rows($result);
    	$i=0;
    	$resligne=array();
@@ -144,8 +149,8 @@ if ($result)
    	    // les variables
    	    $cptcli = (! empty($conf->global->COMPTA_ACCOUNT_CUSTOMER))?$conf->global->COMPTA_ACCOUNT_CUSTOMER:$langs->trans("CodeNotDef");
    	    $compta_soc = (! empty($obj->code_compta))?$obj->code_compta:$cptcli;
-
-
+		
+		
 		$compta_prod = $obj->compte;
 		if (empty($compta_prod))
 		{
@@ -191,9 +196,13 @@ else {
     dol_print_error($db);
 }
 
+// end part to be moved in sellsjournal-sqlarray.php
+
 // Bookkeeping Write
 if (GETPOST('action') == 'writebookkeeping')
 {
+	$now=dol_now();
+	
 	foreach ($tabfac as $key => $val)
 	{
 		foreach ($tabttc[$key] as $k => $mt)
@@ -201,6 +210,7 @@ if (GETPOST('action') == 'writebookkeeping')
 		    $bookkeeping = new BookKeeping($db);
 		    $bookkeeping->doc_date = $val["date"];
 		    $bookkeeping->doc_ref = $val["ref"];
+		    $bookkeeping->date_create = $now;
 		    $bookkeeping->doc_type = 'customer_invoice';
 		    $bookkeeping->fk_doc = $key;
 		    $bookkeeping->fk_docdet = $val["fk_facturedet"];
@@ -215,7 +225,7 @@ if (GETPOST('action') == 'writebookkeeping')
 
 		    $bookkeeping->create();
 		}
-
+		
 		// Product / Service
 		foreach ($tabht[$key] as $k => $mt)
 		{
@@ -228,10 +238,11 @@ if (GETPOST('action') == 'writebookkeeping')
 				    $bookkeeping = new BookKeeping($db);
 				    $bookkeeping->doc_date = $val["date"];
 				    $bookkeeping->doc_ref = $val["ref"];
+				    $bookkeeping->date_create = $now;
 				    $bookkeeping->doc_type = 'customer_invoice';
 				    $bookkeeping->fk_doc = $key;
 				    $bookkeeping->fk_docdet = $val["fk_facturedet"];
-		    		$bookkeeping->code_tiers = '';
+				    $bookkeeping->code_tiers = '';
 				    $bookkeeping->numero_compte = $k;
 				    $bookkeeping->label_compte = dol_trunc($val["description"],128); // $compte->label;
 				    $bookkeeping->montant = $mt;
@@ -244,7 +255,7 @@ if (GETPOST('action') == 'writebookkeeping')
 			    }
 			}
 		}
-
+		
 		// VAT
 		//var_dump($tabtva);
 		foreach ($tabtva[$key] as $k => $mt)
@@ -254,6 +265,7 @@ if (GETPOST('action') == 'writebookkeeping')
 			    $bookkeeping = new BookKeeping($db);
 			    $bookkeeping->doc_date = $val["date"];
 			    $bookkeeping->doc_ref = $val["ref"];
+			    $bookkeeping->date_create = $now;
 			    $bookkeeping->doc_type = 'customer_invoice';
 			    $bookkeeping->fk_doc = $key;
 			    $bookkeeping->fk_docdet = $val["fk_facturedet"];
@@ -277,24 +289,24 @@ if (GETPOST('action') == 'export_csv')
 {
     $sep = $conf->global->ACCOUNTINGEX_SEPARATORCSV;
     $filename=accountingex_export_filename_set($filename="",$conf->global->ACCOUNTINGEX_SELL_JOURNAL);
-
+    
     header( 'Content-Type: text/csv' );
 //  header( 'Content-Disposition: attachment;filename=journal_ventes.csv');
 //  header( 'Content-Disposition: attachment;filename ='.$conf->global->ACCOUNTINGEX_EXPORT_FILENAME);
     header( 'Content-Disposition: attachment;filename ='.$filename);
-
+  	
     $companystatic=new Client($db);
-
-    if ($conf->global->ACCOUNTINGEX_MODELCSV == 1) // ModÃ¨le Cegid Expert
+    
+    if ($conf->global->ACCOUNTINGEX_MODELCSV == 1) // Modèle Cegid Expert
     {
       foreach ($tabfac as $key => $val)
     	{
   	    $companystatic->id=$tabcompany[$key]['id'];
 	    	$companystatic->name=$tabcompany[$key]['name'];
 	    	$companystatic->client=$tabcompany[$key]['code_client'];
-
+        
         $date = dol_print_date($db->jdate($val["date"]),'%d%m%Y');
-
+    		
         print $date.$sep;
     		print $conf->global->ACCOUNTINGEX_SELL_JOURNAL.$sep;
         print length_accountg($conf->global->COMPTA_ACCOUNT_CUSTOMER).$sep;
@@ -307,7 +319,7 @@ if (GETPOST('action') == 'export_csv')
     		}
         print $val["ref"];
     		print "\n";
-
+    		
         // Product / Service
     		foreach ($tabht[$key] as $k => $mt)
     		{
@@ -350,7 +362,7 @@ if (GETPOST('action') == 'export_csv')
         $companystatic->id=$tabcompany[$key]['id'];
 	    	$companystatic->name=$tabcompany[$key]['name'];
 	    	$companystatic->client=$tabcompany[$key]['code_client'];
-
+        
         $date = dol_print_date($db->jdate($val["date"]),'day');
     		print '"'.$date.'"'.$sep;
     		print '"'.$val["ref"].'"'.$sep;
@@ -377,7 +389,7 @@ if (GETPOST('action') == 'export_csv')
     				print "\n";
     			}
     		}
-
+    		
     		// VAT
     		//var_dump($tabtva);
     		foreach ($tabtva[$key] as $k => $mt)
@@ -542,7 +554,7 @@ if (GETPOST('action') == 'export_csv')
   	  }
     }
 }
-//eand export
+//end export
 else
 {
 
@@ -563,11 +575,11 @@ $period=$form->select_date($date_start,'date_start',0,0,0,'',1,0,1).' - '.$form-
 report_header($nom,$nomlink,$period,$periodlink,$description,$builddate,$exportlink, array('action'=>'') );
 
 
-
+	
 	print '<input type="button" class="button" style="float: right;" value="Export CSV" onclick="launch_export();" />';
-
+	
 	print '<input type="button" class="button" value="'.$langs->trans("WriteBookKeeping").'" onclick="writebookkeeping();" />';
-
+	
 	print '
 	<script type="text/javascript">
 		function launch_export() {
