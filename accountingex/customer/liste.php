@@ -129,8 +129,20 @@ if ($resultCompte)
 */
 $page = $_GET["page"];
 if ($page < 0) $page = 0;
-//$limit = $conf->global->ACCOUNTINGEX_LIMIT_LIST_VENTILATION;
-if (! empty($conf->global->ACCOUNTINGEX_LIMIT_LIST_VENTILATION)) { $limit = $conf->global->ACCOUNTINGEX_LIMIT_LIST_VENTILATION; } else { $limit = $conf->liste_limit;}
+
+if (! empty($conf->global->ACCOUNTINGEX_LIMIT_LIST_VENTILATION)) 
+{ 
+	$limit = $conf->global->ACCOUNTINGEX_LIMIT_LIST_VENTILATION; 
+}
+else if ($conf->global->ACCOUNTINGEX_LIMIT_LIST_VENTILATION <= 0)
+{
+	$limit = $conf->liste_limit;
+}
+else 
+{ 
+	$limit = $conf->liste_limit;
+}
+
 $offset = $limit * $page ;
 // modif order by car pbr si modif facture les lignes ne sont plus dans l'ordre rowid
 $sql = "SELECT f.facnumber, f.rowid as facid, l.fk_product, l.description, l.total_ht, l.rowid, l.fk_code_ventilation,";

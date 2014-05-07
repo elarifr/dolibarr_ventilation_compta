@@ -95,7 +95,7 @@ if (empty($date_start) || empty($date_end)) // We define date_start and date_end
 
 $p = explode(":", $conf->global->MAIN_INFO_SOCIETE_COUNTRY);
 $idpays = $p[0];
-// begin part to move to purchasesjournal-sqlarray.php
+
 $sql = "SELECT f.rowid, f.ref, f.type, f.datef as df, f.libelle,";
 $sql.= " fd.rowid as fdid, fd.description, fd.total_ttc, fd.tva_tx, fd.total_ht, fd.tva as total_tva, fd.product_type,";
 $sql.= " s.rowid as socid, s.nom as name, s.code_compta_fournisseur, s.fournisseur,";
@@ -157,8 +157,6 @@ if ($result)
 else {
 	dol_print_error($db);
 }
-// end part to move to purchasesjournal-sqlarray.php
-
 // Bookkeeping Write
 if (GETPOST('action') == 'writebookkeeping')
 {
@@ -219,7 +217,7 @@ if (GETPOST('action') == 'writebookkeeping')
 			}
 		}
 		
-    	// VAT
+	// VAT
 		//var_dump($tabtva);
 		foreach ($tabtva[$key] as $k => $mt)
 		{
@@ -259,13 +257,13 @@ if (GETPOST('action') == 'export_csv')
   header( 'Content-Type: text/csv' );
   header( 'Content-Disposition: attachment;filename=journal_achats.csv');
 	
-  if ($conf->global->ACCOUNTINGEX_MODELCSV == 1) // Modèle Cegid Expert
+  if ($conf->global->ACCOUNTINGEX_MODELCSV == 1) // Modèle Export Cegid Expert
   {
     foreach ($tabfac as $key => $val)
   	{
   	  $date = dol_print_date($db->jdate($val["date"]),'%d%m%Y');
   		
-      // product
+      // Product / Service
   		foreach ($tabht[$key] as $k => $mt)
   		{
         $companystatic->id=$tabcompany[$key]['id'];
@@ -286,7 +284,7 @@ if (GETPOST('action') == 'export_csv')
   			}
   		}
   		
-      // vat
+      // VAT
   		//var_dump($tabtva);
   		foreach ($tabtva[$key] as $k => $mt)
   		{
@@ -317,7 +315,7 @@ if (GETPOST('action') == 'export_csv')
   		print "\n";
   	}
   }
-  else
+  else // Modèle Export Classique
   {
     foreach ($tabfac as $key => $val)
   	{
@@ -327,21 +325,21 @@ if (GETPOST('action') == 'export_csv')
 	    $companystatic->name=$tabcompany[$key]['name'];
 	    $companystatic->client=$tabcompany[$key]['code_client'];
       
-      // product
+      // Product / Service
   		foreach ($tabht[$key] as $k => $mt)
   		{
   			if ($mt)
   			{
   				print '"'.$date.'"'.$sep;
   				print '"'.$val["ref"].'"'.$sep;
-  				print '"'.html_entity_decode($k).'"'.$sep;
-          		print '"'.dol_trunc($val["description"],32).'"'.$sep;
-         		print '"'.($mt >= 0? price($mt):'').'"'.$sep;
-				print '"'.($mt < 0? price(-$mt):'').'"';
+  				print '"'.length_accountg(html_entity_decode($k)).'"'.$sep;
+          print '"'.dol_trunc($val["description"],32).'"'.$sep;
+          print '"'.($mt >= 0? price($mt):'').'"'.$sep;
+          print '"'.($mt < 0? price(-$mt):'').'"';
   				print "\n";
   			}
   		}
-  		// vat
+  		// VAT
   		//var_dump($tabtva);
   		foreach ($tabtva[$key] as $k => $mt)
   		{
@@ -349,21 +347,23 @@ if (GETPOST('action') == 'export_csv')
   		    {
   				print '"'.$date.'"'.$sep;
   				print '"'.$val["ref"].'"'.$sep;
-  				print '"'.html_entity_decode($k).'"'.$sep;
-          		print '"'.$langs->trans("VAT").'"'.$sep;
-         		print '"'.($mt >= 0? price($mt):'').'"'.$sep;
-          		print '"'.($mt <0? price(-$mt):'').'"';
+  				print '"'.length_accountg(html_entity_decode($k)).'"'.$sep;
+          print '"'.$langs->trans("VAT").'"'.$sep;
+          print '"'.($mt >= 0? price($mt):'').'"'.$sep;
+          print '"'.($mt <0? price(-$mt):'').'"';
   				print "\n";
   			}
   		}
+      
+      // Third party
   		print '"'.$date.'"'.$sep;
   		print '"'.$val["ref"].'"'.$sep;
   		foreach ($tabttc[$key] as $k => $mt)
   		{
-			print '"'.html_entity_decode($k).'"'.$sep;
-			print '"'.utf8_decode($companystatic->name).'"'.$sep;
-			print '"'.($mt<0?price(-$mt):'').'"'.$sep;
-			print '"'.($mt>=0?price($mt):'').'"';
+  			print '"'.length_accounta(html_entity_decode($k)).'"'.$sep;
+        print '"'.utf8_decode($companystatic->name).'"'.$sep;
+        print '"'.($mt<0?price(-$mt):'').'"'.$sep;
+        print '"'.($mt>=0?price($mt):'').'"';
   		}
   		print "\n";
   	}

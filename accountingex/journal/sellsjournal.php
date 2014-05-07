@@ -5,7 +5,7 @@
  * Copyright (C) 2012		   Regis Houssin		    <regis@dolibarr.fr>
  * Copyright (C) 2013		   Christophe Battarel	<christophe.battarel@altairis.fr>
  * Copyright (C) 2013-2014 Alexandre Spangaro	  <alexandre.spangaro@gmail.com>
- * Copyright (C) 2013      Florian Henry	      <florian.henry@open-concept.pro>
+ * Copyright (C) 2013-2014 Florian Henry	      <florian.henry@open-concept.pro>
  * Copyright (C) 2013-2014 Olivier Geffroy      <jeff@jeffinfo.com>
  * Copyright (C) 2014      Ari Elbaz (elarifr)  <github@accedinfo.com>
  *
@@ -75,8 +75,6 @@ if (!$user->rights->accountingex->access) accessforbidden();
  * View
  */
 
-
-
 $year_current = strftime("%Y",dol_now());
 $pastmonth = strftime("%m",dol_now()) - 1;
 $pastmonthyear = $year_current;
@@ -99,15 +97,6 @@ if (empty($date_start) || empty($date_end)) // We define date_start and date_end
 
 $p = explode(":", $conf->global->MAIN_INFO_SOCIETE_COUNTRY);
 $idpays = $p[0];
-
-	$tabfac = array();
-	//elarifr test
-	//$tabdet2 = array();
-	//elarifr test
-	$tabht = array();
-	$tabtva = array();
-	$tabttc = array();
-	$tabcompany = array();
 
 //	$ressqlarray=@include("sellsjournal-sqlarray.php");
 //	if (! $ressqlarray) die("Include of exportjournal-sqlarray.php fails in accountingex/journal");
@@ -139,6 +128,15 @@ dol_syslog('accountingex/journal/sellsjournal.php:: $sql='.$sql);
 $result = $db->query($sql);
 if ($result)
 {
+	$tabfac = array();
+	//elarifr test
+	//$tabdet2 = array();
+	//elarifr test
+	$tabht = array();
+	$tabtva = array();
+	$tabttc = array();
+	$tabcompany = array();
+
 	$num = $db->num_rows($result);
    	$i=0;
    	$resligne=array();
@@ -195,8 +193,6 @@ if ($result)
 else {
     dol_print_error($db);
 }
-
-// end part to be moved in sellsjournal-sqlarray.php
 
 // Bookkeeping Write
 if (GETPOST('action') == 'writebookkeeping')

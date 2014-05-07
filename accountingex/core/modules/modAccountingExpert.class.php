@@ -104,10 +104,19 @@ class modAccountingExpert extends DolibarrModules
 		$this->const[24] = array("ACCOUNTINGEX_EXPORT_FILENAME_POSTDATING","chaine","1");
 		$this->const[25] = array("ACCOUNTINGEX_EXPORT_FILENAME_EXTENSION","chaine",".csv");
 		$this->const[26] = array("ACCOUNTINGEX_EXPORT_FILENAME_SEPARATOR","chaine","_");
-    
+
     // Css
     $this->module_parts = array('css' => array('/accountingex/css/accountingex.css.php'));
     		
+	//Elarifr
+		//TODO : Need change in bank.lib.php  http://www.dolibarr.fr/forum/511-creation-dun-nouveau-module/46162-module-comptabilite-expert?start=165#49886
+		//2014-04-11 19:04:20 (http://wiki.dolibarr.org/index.php/D%C3%A9veloppement_module#Ajouter_ou_supprimer_des_onglets_sur_les_fiches_objets)
+		// Array to add new pages in new tabs or remove existing one
+		// $this->tabs = array('objecttype:+tabname1:Title1:@monmodule:/monmodule/mynewtab1.php?id=__ID__',
+		// To add a new tab identified by code tabname1 'objecttype:+tabname2:Title2:@monmodule:/monmodule/mynewtab2.php?id=__ID__',
+		// To add another new tab identified by code tabname2 'objecttype:-tabname');
+		$this->tabs = array('bank:+accountingex:Accounting:accountingex@accountingex:$conf->accountingexpert->enabled:/accountingex/admin/bank_journal.php?id=__ID__');
+	//Elarifr
 		// Boxes
 		$this->boxes = array();
 
@@ -420,6 +429,7 @@ class modAccountingExpert extends DolibarrModules
 		            'user'=>0);
      $r++;
      
+	//Elarifr
                                      // r=15 = indice du menu parent
     $this->menu[$r]=array(  'fk_menu'=>'r=15',
 		            'type'=>'left',
@@ -433,6 +443,7 @@ class modAccountingExpert extends DolibarrModules
 		            'target'=>'',
 		            'user'=>0);
     $r++;
+	//Elarifr
      /*
      $this->menu[$r]=array(  'fk_menu'=>'r=14',
 		            'type'=>'left',
