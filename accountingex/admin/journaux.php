@@ -1,8 +1,8 @@
 <?php
-/* Copyright (C) 2001-2004 Rodolphe Quiedeville <rodolphe@quiedeville.org>
- * Copyright (C) 2004-2005 Laurent Destailleur  <eldy@users.sourceforge.net>
- * Copyright (C) 2013-2014 Florian Henry	      <florian.henry@open-concept.pro>
- * Copyright (C) 2013-2014 Alexandre Spangaro   <alexandre.spangaro@gmail.com>
+/* Copyright (C) 2013-2014 Olivier Geffroy      <jeff@jeffinfo.com>
+ * Copyright (C) 2013-2014 Alexandre Spangaro	<alexandre.spangaro@gmail.com>
+ * Copyright (C) 2014 	   Florian Henry		<florian.henry@open-concept.pro>
+ * Copyright (C) 2014      Marcos García        <marcosgdf@gmail.com>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -20,68 +20,81 @@
  */
 
 /**
-    \file       htdocs/accountingex/admin/index.php
-    \ingroup    Accounting Expert
-		\brief      Page administration du module
-*/
+ * \file		htdocs/accountingex/admin/journaux.php
+ * \ingroup		Accounting Expert
+ * \brief		Setup page to configure accounting expert module
+ */
 
 // Dolibarr environment
-$res=@include("../main.inc.php");
-if (! $res && file_exists("../main.inc.php")) $res=@include("../main.inc.php");
-if (! $res && file_exists("../../main.inc.php")) $res=@include("../../main.inc.php");
-if (! $res && file_exists("../../../main.inc.php")) $res=@include("../../../main.inc.php");
-if (! $res) die("Include of main fails");
-
+$res = @include ("../main.inc.php");
+if (! $res && file_exists("../main.inc.php"))
+	$res = @include ("../main.inc.php");
+if (! $res && file_exists("../../main.inc.php"))
+	$res = @include ("../../main.inc.php");
+if (! $res && file_exists("../../../main.inc.php"))
+	$res = @include ("../../../main.inc.php");
+if (! $res)
+	die("Include of main fails");
+	
 // Class
 dol_include_once("/core/lib/admin.lib.php");
 dol_include_once("/accountingex/core/lib/account.lib.php");
 
-$langs->load("compta");
-$langs->load("bills");
-$langs->load('admin');
 $langs->load('accountingex@accountingex');
 
-// Securite accès client
-if ($user->societe_id > 0) accessforbidden();
-if (!$user->rights->accountingex->admin) accessforbidden();
+// Security check
+if ($user->societe_id > 0)
+	accessforbidden();
+if (! $user->rights->accountingex->admin)
+	accessforbidden();
 
-$action=GETPOST('action','alpha');
+$action = GETPOST('action', 'alpha');
+
+// Other parameters ACCOUNTINGEX_*
+$list = array (
+		'ACCOUNTINGEX_SELL_JOURNAL',
+		'ACCOUNTINGEX_PURCHASE_JOURNAL',
+		'ACCOUNTINGEX_SOCIAL_JOURNAL',
+		'ACCOUNTINGEX_BANK_JOURNAL',
+		'ACCOUNTINGEX_CASH_JOURNAL',
+		'ACCOUNTINGEX_MISCELLANEOUS_JOURNAL' 
+);
 
 /*
- * Affichage page
- *
+ * Actions
  */
- 
-if ($action == 'delete')
-{
-	if (! dolibarr_del_const($db, $_GET['constname'],$conf->entity));
-	{
-		print $db->error();
+
+if ($action == 'update') {
+	$error = 0;
+	
+	foreach ( $list as $constname ) {
+		$constvalue = GETPOST($constname, 'alpha');
+		
+		if (! dolibarr_set_const($db, $constname, $constvalue, 'chaine', 0, '', $conf->entity)) {
+			$error ++;
+		}
+	}
+	
+	if (! $error) {
+		setEventMessage($langs->trans("SetupSaved"));
+	} else {
+		setEventMessage($langs->trans("Error"), 'errors');
+	}
+}elseif($action=='setgroupbyaccount') {
+	$constvalue=GETPOST('value');
+	$error = 0;
+	
+	$result=dolibarr_set_const($db, 'ACCOUNTINGEX_GROUPBYACCOUNT', $constvalue, 'chaine', 0, '', $conf->entity);
+	
+	if ($result<0) {
+		setEventMessage($langs->trans("Error"), 'errors');
+	} else {
+		setEventMessage($langs->trans("SetupSaved"));
 	}
 }
- 
-if ($action == 'update' || $action == 'add')
-{
-	$constname = GETPOST('constname','alpha');
-	$constvalue = GETPOST('constvalue','alpha');
-	$consttype = GETPOST('consttype','alpha');
-	$constnote = GETPOST('constnote','alpha');
 
-	$res = dolibarr_set_const($db, $constname, $constvalue, $consttype, 0, $constnote, $conf->entity);
-
-	if (! $res > 0) $error++;
-
- 	if (! $error)
-    {
-        $mesg = "<font class=\"ok\">".$langs->trans("SetupSaved")."</font>";
-    }
-    else
-    {
-        $mesg = "<font class=\"error\">".$langs->trans("Error")."</font>";
-    }
-}
 /*
- * Affichage page
+ * View
  */
 
 llxHeader();
@@ -91,67 +104,50 @@ $form = new Form($db);
 print_fiche_titre($langs->trans('ConfigAccountingExpert'));
 
 $head = admin_account_prepare_head(null);
-		
-dol_fiche_head($head,'journal',$langs->trans("Configuration"),0,'cron');
 
-/*
- *  Params
- *
- */
-$list=array('ACCOUNTINGEX_SELL_JOURNAL',
-            'ACCOUNTINGEX_PURCHASE_JOURNAL',
-            'ACCOUNTINGEX_SOCIAL_JOURNAL',
-            'ACCOUNTINGEX_CASH_JOURNAL',
-            'ACCOUNTINGEX_MISCELLANEOUS_JOURNAL'
-);
+dol_fiche_head($head, 'journal', $langs->trans("Configuration"), 0, 'cron');
 
-$num=count($list);
-if ($num)
-{
-	print '<table class="noborder" width="100%">';
-	print '<tr class="liste_titre">';
-	print '<td colspan="3">'.$langs->trans('Journaux').'</td>';
-	print "</tr>\n";
-}
+print '<form action="' . $_SERVER["PHP_SELF"] . '" method="post">';
+print '<input type="hidden" name="token" value="' . $_SESSION['newtoken'] . '">';
+print '<input type="hidden" name="action" value="update">';
 
-foreach ($list as $key)
-{
-	$var=!$var;
+print '<table class="noborder" width="100%">';
+print '<tr class="liste_titre">';
+print '<td colspan="3">' . $langs->trans('Journaux') . '</td>';
+print "</tr>\n";
 
-	print '<form action="journaux.php" method="POST">';
-	print '<input type="hidden" name="token" value="'.$_SESSION['newtoken'].'">';
+foreach ( $list as $key ) {
+	$var = ! $var;
 	
-	print '<input type="hidden" name="action" value="update">';
-	print '<input type="hidden" name="consttype" value="string">';
-	print '<input type="hidden" name="constname" value="'.$key.'">';
+	print '<tr ' . $bc[$var] . ' class="value">';
 	
-	print '<tr '.$bc[$var].' class="value">';
-
 	// Param
-	$label = $langs->trans($key); 
-	print '<td>'.$label;
-	//print ' ('.$key.')';
-	print "</td>\n";
-
+	$label = $langs->trans($key);
+	print '<td><label for="' . $key . '">' . $label . '</label></td>';
+	
 	// Value
 	print '<td>';
-	print '<input type="text" size="20" name="constvalue" value="'.$conf->global->$key.'">';
-	print '</td><td>';
-	print '<input type="submit" class="button" value="'.$langs->trans('Modify').'" name="button"> &nbsp; ';
-	print "</td></tr>\n";
-	print '</form>';
-	
-	$i++;
+	print '<input type="text" size="20" id="' . $key . '" name="' . $key . '" value="' . $conf->global->$key . '">';
+	print '</td></tr>';
 }
 
-if ($num)
-{
-	print "</table>\n";
+$var=!$var;
+print "<tr " . $bc[$var] . ">";
+print '<td>' . $langs->trans("GroupByAccount") . '</td>';
+if (! empty($conf->global->ACCOUNTINGEX_GROUPBYACCOUNT)) {
+	print '<td><a href="' . $_SERVER['PHP_SELF'] . '?action=setgroupbyaccount&value=0">';
+	print img_picto($langs->trans("Activated"), 'switch_on');
+	print '</a></td>';
+} else {
+	print '<td><a href="' . $_SERVER['PHP_SELF'] . '?action=setgroupbyaccount&value=1">';
+	print img_picto($langs->trans("Disabled"), 'switch_off');
+	print '</a></td>';
 }
+print '</tr>';
+print "</table>\n";
+print '</form>';
 
-dol_htmloutput_mesg($mesg);
-
-$db->close();
+print '<br /><div style="text-align:center"><input type="submit" class="button" value="' . $langs->trans('Modify') . '" name="button"></div>';
 
 llxFooter();
-?>
+$db->close();
