@@ -73,8 +73,12 @@ VentilatedinAccount=Ventilée avec succès dans le compte comptable
 NotVentilatedinAccount=Non ventilée dans le compte comptable
 
 ACCOUNTINGEX_SEPARATORCSV=Séparateur CSV
-ACCOUNTINGEX_SELL_DETAILED=Détaillé par lignes (0=non 1=oui)
-ACCOUNTINGEX_SELL_EXPORTZERO=Transferer les lignes nulles (0=non 1=oui)
+ACCOUNTINGEX_SELL_DETAILED=Détailler les ventes par lignes (0=non 1=oui)
+ACCOUNTINGEX_SELL_DETAILED_DESC=Description des lignes de ventes<br />Options:  0=libelle compte comptable;   1=ref produit;   2=description;   3=ref+description;   ou 99=debug
+ACCOUNTINGEX_SELL_EXPORTZERO=Transferer les lignes de ventes nulles (0=non 1=oui)
+ACCOUNTINGEX_BUY_DETAILED=Détailler les achats par lignes (0=non 1=oui)
+ACCOUNTINGEX_BUY_DETAILED_DESC=Description des lignes d'achats<br />Options:  0=libelle compte comptable;   1=ref produit;   2=description;   3=ref+description;   ou 99=debug
+ACCOUNTINGEX_BUY_EXPORTZERO=Transferer les lignes d'achats nulles (0=non 1=oui)
 ACCOUNTINGEX_EXPORT_FOLDER01=Dossier personnel 01
 ACCOUNTINGEX_EXPORT_FOLDER02=Dossier personnel 02
 ACCOUNTINGEX_EXPORT_FILENAME_PREDATING=Fichier Export Prefixe date : yyyymmdd (0=non 1=oui)
@@ -92,7 +96,7 @@ AccountLength=Longueur des comptes comptables affichés dans Dolibarr
 AccountLengthDesc=Fonction permettant de simuler une longueur de compte comptable en remplaçant les espaces par le chiffre zéro. Cette fonction touche uniquement à l'affichage, elle ne modifie pas les comptes comptables enregistrés dans Dolibarr. Pour l'export, cette fonction est nécessaire pour être compatible avec certains logiciels.  
 ACCOUNTINGEX_LENGTH_GACCOUNT=Longueur des comptes généraux
 ACCOUNTINGEX_LENGTH_AACCOUNT=Longueur des comptes tiers
-ACCOUNTINGEX_LENGTH_DESCRIPTION=Longueur d'affichage des Descriptifs produits & services
+ACCOUNTINGEX_LENGTH_DESCRIPTION=Longueur de troncature pour l'affichage des lignes descriptifs produits & services 
 
 ACCOUNTINGEX_SELL_JOURNAL=Journal des Ventes
 ACCOUNTINGEX_PURCHASE_JOURNAL=Journal des Achats
