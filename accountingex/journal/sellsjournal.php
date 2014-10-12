@@ -186,7 +186,7 @@ if ($result) {
 					$sell_detail .= '['. $obj->product_type .'] - ('. $obj->pref . ') - '. $obj->description;
 				break;
 			}
-			$tabfac[$obj->rowid]["description"][$obj->fdid]  = $sell_detail;
+			$tabfac[$obj->rowid]["description"][$obj->fdid]  = accountingex_clean_desc ($sell_detail);
 		}
 		$tabfac[$obj->rowid]["fk_facturedet"] = $obj->fdid;
 		if (! isset($tabttc[$obj->rowid][$compta_soc]))
@@ -686,3 +686,4 @@ else
 	llxFooter();
 }
 $db->close();
+

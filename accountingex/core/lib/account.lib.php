@@ -204,3 +204,11 @@ function accountingex_export_filename_set($filename,$journal_option) {
   if ($conf->global->ACCOUNTINGEX_EXPORT_FILENAME_EXTENSION != "") {$filename .=$conf->global->ACCOUNTINGEX_EXPORT_FILENAME_EXTENSION;} else {$filename .=".csv";}
   return $filename;
 }
+
+// elarifr need to clean description for export / remove line break
+function accountingex_clean_desc ($description) {
+	$description = str_replace(CHR(13).CHR(10)," ",$description);
+	$description = str_replace(CHR(11)," ",$description);
+	$description = str_replace(CHR(10)," ",$description);
+	return $description;
+}
