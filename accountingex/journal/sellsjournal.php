@@ -555,7 +555,7 @@ if ($action == 'export_csv') {
 						// Compte 11 caractères Alphanumérique
 						print str_pad(substr(html_entity_decode($k),0,11),11,"0");
 						// Libellé 25 caractères Alphanumérique
-						print  str_pad(substr(ucfirst(strtolower($val["description"][$lineid])),0,25),25);
+						print str_pad(substr(ucfirst(strtolower($val["description"][$lineid])),0,25),25);
 						// Montant 13 caractères (2 déc.) Numérique
 						print str_pad(number_format(($amountline < 0?-$amountline:$amountline),2,'.',''),13,' ', STR_PAD_LEFT);
 						// Crédit-Débit 1 caractère (D ou C)
@@ -579,7 +579,7 @@ if ($action == 'export_csv') {
 					// Montant 13 caractères (2 déc.) Numérique
 					print str_pad(number_format(($mt < 0?-$mt:$mt),2,'.',''),13,' ', STR_PAD_LEFT);
 					// Crédit-Débit 1 caractère (D ou C)
-					  print ($mt < 0?'D':'C');
+					print ($mt < 0?'D':'C');
 					// middle pointage & analytique not managed yet
 					print $exportanalyt;
 					// Libellé du compte 34 caractères Alphanumérique
@@ -594,11 +594,11 @@ if ($action == 'export_csv') {
 		{
 			if ($mt) {
 				// begin export line
-				print  $exportlinestart;
+				print $exportlinestart;
 				// Compte 11 caractères Alphanumérique
 				print str_pad(substr(html_entity_decode($k),0,11),11,"0");
-				// Libellé 25 caractères Alphanumérique
-				print $langs->trans("VAT");
+				// Libellé 25 caractères Alphanumérique // ok test avec EGroult
+				print str_pad(substr(ucfirst(strtolower($langs->trans("VAT"))),0,25),25);
 				// Montant 13 caractères (2 déc.) Numérique
 				print str_pad(number_format(($mt < 0?-$mt:$mt),2,'.',''),13,' ', STR_PAD_LEFT);
 				// Crédit-Débit 1 caractère (D ou C)
