@@ -58,6 +58,7 @@ $action = GETPOST('action', 'alpha');
 $list = array (
 		'ACCOUNTINGEX_LIMIT_LIST_VENTILATION',
 		'ACCOUNTINGEX_LENGTH_DESCRIPTION',		// adjust size displayed for lines description for dol_trunc
+		'ACCOUNTINGEX_LENGTH_DESCRIPTION_ACCOUNT',		// adjust size displayed for select account description for dol_trunc
 		'ACCOUNTINGEX_LENGTH_GACCOUNT',
 		'ACCOUNTINGEX_LENGTH_AACCOUNT',
 		'COMPTA_ACCOUNT_CUSTOMER',

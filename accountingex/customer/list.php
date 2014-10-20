@@ -125,16 +125,16 @@ $sqlCompte .= " AND a.active = '1'";
 $sqlCompte .= " ORDER BY a.account_number ASC";
 
 $resultCompte = $db->query($sqlCompte);
-$cgs = array ();
-$cgn = array ();
+$cgs = array();
+$cgn = array();
 if ($resultCompte) {
 	$numCompte = $db->num_rows($resultCompte);
 	$iCompte = 0;
 	
 	while ( $iCompte < $numCompte ) {
 		$rowCompte = $db->fetch_row($resultCompte);
-		$cgs[$rowCompte[0]] = $rowCompte[1] . ' ' . $rowCompte[2];
-	//	$cgs[$rowCompte[0]] = $rowCompte[1] . ' ' . dol_trunc($rowCompte[2],64);
+//		$cgs[$rowCompte[0]] = $rowCompte[1] . ' ' . $rowCompte[2];
+		$cgs[$rowCompte[0]] = $rowCompte[1] . ' ' . dol_trunc($rowCompte[2],ACCOUNTINGEX_LENGTH_DESCRIPTION_ACCOUNT);
 		$cgn[$rowCompte[1]] = $rowCompte[0];
 		$iCompte ++;
 	}
@@ -280,6 +280,7 @@ if ($result) {
 		
 		// Colonne choix du compte
 		print '<td align="left">';
+		//it should be usefull to reduce content width of selectbox account
 		//print $formventilation->select_account($objp->aarowid, 'codeventil[]', 1,array(),$objp->code_sell2);
 		print $form->selectarray("codeventil[]", $cgs, $cgn[$objp->code_sell2]);
 		print '</td>';
